@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ScraperHtmlService } from './scraper-html.service';
+import { AxiosError } from 'axios';
 
 // Mock JSDOM to avoid ESM issues in Jest
 jest.mock('jsdom', () => ({
@@ -18,6 +19,7 @@ describe('ScraperHtmlService', () => {
 
   const mockHttpService = {
     get: jest.fn(),
+    request: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -297,6 +299,123 @@ describe('ScraperHtmlService', () => {
 
       expect(result.valid).toBe(true);
       expect(result.results).toHaveLength(0);
+    });
+  });
+
+  describe('checkUrlAlive', () => {
+    it('should check if a single URL is alive', async () => {
+      mockHttpService.request.mockReturnValue(
+        of({
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {},
+          data: '',
+        }),
+      );
+
+      const result = await service.checkUrlAlive('https://example.com');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        url: 'https://example.com',
+        alive: true,
+        statusCode: 200,
+      });
+    });
+
+    it('should check multiple URLs', async () => {
+      mockHttpService.request.mockImplementation((config: { url: string }) => {
+        const { url } = config;
+        if (url === 'https://example.com') {
+          return of({
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config: {},
+            data: '',
+          });
+        }
+        if (url === 'https://notfound.com') {
+          return of({
+            status: 404,
+            statusText: 'Not Found',
+            headers: {},
+            config: {},
+            data: '',
+          });
+        }
+        return of({
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {},
+          config: {},
+          data: '',
+        });
+      });
+
+      const result = await service.checkUrlAlive([
+        'https://example.com',
+        'https://notfound.com',
+        'https://server-error.com',
+      ]);
+
+      expect(result).toHaveLength(3);
+      expect(result[0]).toEqual({
+        url: 'https://example.com',
+        alive: true,
+        statusCode: 200,
+      });
+      expect(result[1]).toEqual({
+        url: 'https://notfound.com',
+        alive: false,
+        statusCode: 404,
+      });
+      expect(result[2]).toEqual({
+        url: 'https://server-error.com',
+        alive: false,
+        statusCode: 500,
+      });
+    });
+
+    it('should handle network errors gracefully', async () => {
+      const networkError = new Error('Network error');
+      (networkError as AxiosError).isAxiosError = true;
+      (networkError as AxiosError).message = 'Network error';
+
+      mockHttpService.request.mockReturnValue(throwError(() => networkError));
+
+      const result = await service.checkUrlAlive('https://down.com');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        url: 'https://down.com',
+        alive: false,
+        error: 'Network error',
+      });
+    });
+
+    it('should use proxy when specified', async () => {
+      mockHttpService.request.mockReturnValue(
+        of({
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {},
+          data: '',
+        }),
+      );
+
+      await service.checkUrlAlive('https://example.com', {
+        useProxy: 'http://proxy.example.com:8080',
+      });
+
+      expect(mockHttpService.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'HEAD',
+          url: 'https://example.com',
+        }) as unknown,
+      );
     });
   });
 });

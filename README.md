@@ -24,6 +24,7 @@
   - [Container-Based Extraction](#container-based-extraction)
   - [Data Cleaning with Pipes](#data-cleaning-with-pipes)
   - [XPath Validation](#xpath-validation)
+  - [URL Health Check](#url-health-check)
   - [User-Agent Rotation](#user-agent-rotation)
 - [TypeScript Definitions & Types](#typescript-definitions--types)
 - [API Reference](#api-reference)
@@ -40,7 +41,9 @@
 - **(・_・) Data Cleaning Pipes**: Built-in transformations (trim, case conversion, replace, decode HTML)
 - **(>_<) User-Agent Rotation**: Automatic user-agent rotation for stealth scraping
 - **(o_o) XPath Validation**: Validate XPath patterns before scraping
+- **(._.) URL Health Check**: Check if URLs are alive using HTTP HEAD requests
 - **(._.) HTTP Fetching**: Built-in HTML/XML fetching with proxy support
+- **(☆^O^☆) HTTP Retry**: Automatic retry with exponential backoff (default: 3 retries, configurable)
 - **(._.) Multi-Format Support**: Parse both HTML and XML content
 - **(._.) Return Types**: Extract text content or raw HTML
 - **(>_<) Alternative Patterns**: Fallback patterns for robust extraction
@@ -59,12 +62,47 @@ npm install @hanivanrizky/nestjs-xpath-parser
 
 ### Import the Module
 
+**Basic usage (with defaults):**
 ```typescript
 import { Module } from '@nestjs/common';
 import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
 
 @Module({
-  imports: [ScraperHtmlModule],
+  imports: [ScraperHtmlModule.forRoot()],
+})
+export class AppModule {}
+```
+
+**With custom retry configuration:**
+```typescript
+import { Module } from '@nestjs/common';
+import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
+
+@Module({
+  imports: [
+    ScraperHtmlModule.forRoot({
+      maxRetries: 5, // Custom retry count (default: 3)
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+**Async configuration:**
+```typescript
+import { Module } from '@nestjs/common';
+import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
+
+@Module({
+  imports: [
+    ScraperHtmlModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        maxRetries: configService.get<number>('SCRAPER_MAX_RETRIES', 3),
+      }),
+      inject: [ConfigService],
+    }),
+  ],
 })
 export class AppModule {}
 ```
@@ -257,6 +295,88 @@ console.log(validationResult);
 // }
 ```
 
+### URL Health Check
+
+Check if URLs are alive using HTTP HEAD requests:
+
+**Single URL check:**
+```typescript
+const result = await scraperService.checkUrlAlive('https://example.com');
+
+console.log(result);
+// [{
+//   url: 'https://example.com',
+//   alive: true,
+//   statusCode: 200,
+// }]
+```
+
+**Multiple URLs check:**
+```typescript
+const results = await scraperService.checkUrlAlive([
+  'https://example.com',
+  'https://example.org/product/123',
+  'https://broken-link.com/page',
+]);
+
+results.forEach(result => {
+  if (!result.alive) {
+    console.log(`Dead URL: ${result.url} - Status: ${result.statusCode}, Error: ${result.error}`);
+  } else {
+    console.log(`Alive: ${result.url} (${result.statusCode})`);
+  }
+});
+```
+
+**Check URLs with feedback on extracted data:**
+```typescript
+// First scrape to get URLs
+const scrapedData = await scraperService.evaluateWebsite({
+  url: 'https://example.com/articles',
+  patterns: [
+    {
+      key: 'title',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//h2[@class="title"]/text()'],
+    },
+    {
+      key: 'link',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//a[@class="article-link"]/@href'],
+    },
+  ],
+});
+
+// Extract all URLs
+const urls = scrapedData.results.map(item => item.link as string);
+
+// Check which URLs are alive
+const healthResults = await scraperService.checkUrlAlive(urls);
+
+// Combine data with health status
+const enrichedData = scrapedData.results.map((item, index) => ({
+  ...item,
+  linkHealth: healthResults[index],
+}));
+
+// Filter out dead links
+const aliveItems = enrichedData.filter(item => item.linkHealth.alive);
+const deadItems = enrichedData.filter(item => !item.linkHealth.alive);
+
+console.log(`Found ${aliveItems.length} valid articles`);
+console.log(`Found ${deadItems.length} dead links:`, deadItems.map(d => d.link));
+```
+
+**With proxy support:**
+```typescript
+const results = await scraperService.checkUrlAlive(
+  ['https://example.com', 'https://example.org'],
+  { useProxy: true } // Uses HTTP_PROXY or HTTPS_PROXY env var
+);
+```
+
 ### User-Agent Rotation
 
 Automatic user-agent rotation for each request to avoid detection:
@@ -267,6 +387,41 @@ const result = await scraperService.evaluateWebsite({
   url: 'https://example.com',
   patterns: [...],
   // Different user-agent will be used automatically
+});
+```
+
+### HTTP Retry & Proxy Configuration
+
+**Automatic Retry with Exponential Backoff:**
+
+The service automatically retries failed HTTP requests with exponential backoff:
+
+```typescript
+const result = await scraperService.evaluateWebsite({
+  url: 'https://example.com',
+  patterns: [...],
+  // Automatically retries on 500+ errors or connection resets
+  // Retry count is configurable via ScraperHtmlModule.forRoot({ maxRetries: 5 })
+});
+```
+
+**Proxy Configuration:**
+
+Use a proxy for HTTP requests:
+
+```typescript
+// Option 1: Use environment variables
+const result = await scraperService.evaluateWebsite({
+  url: 'https://example.com',
+  useProxy: true, // Uses HTTP_PROXY or HTTPS_PROXY env var
+  patterns: [...],
+});
+
+// Option 2: Specify proxy URL directly
+const result = await scraperService.evaluateWebsite({
+  url: 'https://example.com',
+  useProxy: 'http://proxy.example.com:8080',
+  patterns: [...],
 });
 ```
 
@@ -330,8 +485,13 @@ interface EvaluateOptions {
   url?: string; // URL to fetch HTML from
   html?: string; // Pre-fetched HTML string
   patterns: PatternField[]; // Extraction patterns
-  useProxy?: boolean; // Enable proxy for request
+  useProxy?: boolean | string; // Enable proxy (true uses env vars, string uses specific proxy URL)
   contentType?: 'text/html' | 'text/xml'; // Content type (default: 'text/html')
+}
+
+// Module configuration options
+interface ScraperHtmlModuleOptions {
+  maxRetries?: number; // Maximum number of HTTP retries (default: 3)
 }
 
 interface PatternField {
@@ -375,7 +535,7 @@ Main method for scraping websites with pattern-based extraction.
 - `options.url` - URL to fetch and parse (optional if `html` is provided)
 - `options.html` - Pre-fetched HTML string (optional if `url` is provided)
 - `options.patterns` - Array of extraction patterns
-- `options.useProxy` - Enable proxy for HTTP requests (default: false)
+- `options.useProxy` - Enable proxy: `true` uses HTTP_PROXY/HTTPS_PROXY env vars, or specify proxy URL as string
 - `options.contentType` - Content type: 'text/html' or 'text/xml' (default: 'text/html')
 
 **Returns:**
@@ -462,6 +622,63 @@ console.log(validation);
 //     { xpath: '//invalid[@xpath[', valid: false, error: 'XPath syntax error' }
 //   ]
 // }
+```
+
+### `checkUrlAlive(urls: string | string[], options?: { useProxy?: boolean | string }): Promise<UrlHealthCheckResult[]>`
+
+Check if URLs are alive using HTTP HEAD requests.
+
+**Parameters:**
+- `urls` - Single URL string or array of URLs to check
+- `options.useProxy` - Enable proxy: `true` uses HTTP_PROXY/HTTPS_PROXY env vars, or specify proxy URL as string
+
+**Returns:**
+```typescript
+Array<{
+  url: string; // The checked URL
+  alive: boolean; // True if URL is alive (200-399 status code)
+  statusCode?: number; // HTTP status code (if request succeeded)
+  error?: string; // Error message (if request failed)
+}>
+```
+
+**Example:**
+
+```typescript
+// Check single URL
+const result = await scraperService.checkUrlAlive('https://example.com');
+if (result[0].alive) {
+  console.log(`${result[0].url} is alive (${result[0].statusCode})`);
+} else {
+  console.log(`${result[0].url} is dead: ${result[0].error}`);
+}
+
+// Check multiple URLs
+const urls = ['https://example.com', 'https://broken-link.com'];
+const healthResults = await scraperService.checkUrlAlive(urls);
+
+// Filter dead URLs
+const deadUrls = healthResults.filter(r => !r.alive);
+if (deadUrls.length > 0) {
+  console.warn(`Found ${deadUrls.length} dead URLs:`, deadUrls);
+}
+
+// Check extracted URLs for validity
+const scrapedData = await scraperService.evaluateWebsite({
+  url: 'https://example.com',
+  patterns: [{
+    key: 'link',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//a/@href'],
+  }],
+});
+
+const urls = scrapedData.results.map(r => r.link as string);
+const healthResults = await scraperService.checkUrlAlive(urls);
+
+const validData = scrapedData.results.filter((_, i) => healthResults[i].alive);
+console.log(`Found ${validData.length} valid links out of ${urls.length}`);
 ```
 
 ## Examples

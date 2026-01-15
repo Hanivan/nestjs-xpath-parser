@@ -26,6 +26,7 @@ EXAMPLES=(
   "04-alternative-patterns.ts"
   "05-xml-parsing.ts"
   "06-real-world-ecommerce.ts"
+  "07-url-health-check.ts"
 )
 
 # Function to run a single example

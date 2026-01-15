@@ -11,6 +11,7 @@ import {
   PatternField,
   EvaluateOptions,
   ExtractionResult,
+  UrlHealthCheckResult,
 } from './types';
 
 @Injectable()
@@ -107,6 +108,57 @@ export class ScraperHtmlService {
         }
       });
     }
+
+    return results;
+  }
+
+  async checkUrlAlive(
+    urls: string | string[],
+    options?: { useProxy?: boolean | string },
+  ): Promise<UrlHealthCheckResult[]> {
+    const urlArray = Array.isArray(urls) ? urls : [urls];
+    const results = await Promise.all(
+      urlArray.map(async (url) => {
+        try {
+          const config: Record<string, unknown> = {
+            method: 'HEAD',
+            validateStatus: () => true, // Don't throw on any status
+          };
+
+          // Configure proxy if specified
+          if (options?.useProxy) {
+            const proxyUrl =
+              typeof options.useProxy === 'string'
+                ? options.useProxy
+                : process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
+            if (proxyUrl) {
+              config.httpAgent = new HttpsProxyAgent(proxyUrl);
+              config.httpsAgent = new HttpsProxyAgent(proxyUrl);
+            }
+          }
+
+          const response = await firstValueFrom(
+            this.httpService.request({ ...config, url }),
+          );
+
+          const statusCode = response.status;
+          const alive = statusCode >= 200 && statusCode < 400;
+
+          return {
+            url,
+            alive,
+            statusCode,
+          };
+        } catch (error) {
+          const axiosError = error as AxiosError;
+          return {
+            url,
+            alive: false,
+            error: axiosError.message || 'Unknown error',
+          };
+        }
+      }),
+    );
 
     return results;
   }
