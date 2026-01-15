@@ -52,7 +52,7 @@
     "version:major": "./scripts/version.sh major",
     "prepublishOnly": "yarn build",
     "pack": "./scripts/pack.sh",
-    "publish": "./scripts/publish-auto.sh",
+    "publish:auto": "./scripts/publish-auto.sh",
     "publish:dry": "./scripts/publish-auto.sh --dry-run",
     "prepare": "husky"
   },
