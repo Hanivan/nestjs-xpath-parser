@@ -49,9 +49,7 @@ echo -e "${BLUE}STEP 1: Checking NPM Authentication${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-NPM_USER=$(npm whoami 2>/dev/null)
-
-if [ $? -ne 0 ] || [ -z "$NPM_USER" ]; then
+if ! NPM_USER=$(npm whoami 2>/dev/null) || [ -z "$NPM_USER" ]; then
   echo -e "${YELLOW}(o_o) Not logged in to npm${NC}"
   echo ""
   echo -e "${BLUE}Let's login to npm...${NC}"
@@ -61,9 +59,7 @@ if [ $? -ne 0 ] || [ -z "$NPM_USER" ]; then
   npm login
 
   # Check if login was successful
-  NPM_USER=$(npm whoami 2>/dev/null)
-
-  if [ $? -ne 0 ] || [ -z "$NPM_USER" ]; then
+  if ! NPM_USER=$(npm whoami 2>/dev/null) || [ -z "$NPM_USER" ]; then
     echo ""
     echo -e "${RED}(x_x) Login failed${NC}"
     exit 1
@@ -77,7 +73,7 @@ fi
 
 echo -e "${BLUE}Username:${NC} $NPM_USER"
 
-NPM_EMAIL=$(npm config get email 2>/dev/null)
+NPM_EMAIL=$(npm config get email 2>/dev/null || true)
 if [ -n "$NPM_EMAIL" ]; then
   echo -e "${BLUE}Email:${NC} $NPM_EMAIL"
 fi
@@ -98,12 +94,25 @@ if echo "$NPM_VERSIONS" | grep -q "\"$PACKAGE_VERSION\""; then
   echo -e "${RED}(x_x) Version $PACKAGE_VERSION already exists on npm${NC}"
   echo ""
   echo -e "${YELLOW}Would you like to bump the version?${NC}"
-  echo "  1) patch  (bug fixes:       $PACKAGE_VERSION → $(npm version patch --no-git-tag-version 2>/dev/null && node -p "require('./package.json').version" && git checkout package.json 2>/dev/null || echo ""))"
-  echo "  2) minor  (new features:    $PACKAGE_VERSION → $(npm version minor --no-git-tag-version 2>/dev/null && node -p "require('./package.json').version" && git checkout package.json 2>/dev/null || echo ""))"
-  echo "  3) major  (breaking changes: $PACKAGE_VERSION → $(npm version major --no-git-tag-version 2>/dev/null && node -p "require('./package.json').version" && git checkout package.json 2>/dev/null || echo ""))"
-  echo "  4) Exit"
   echo ""
-  read -p "Select option [1-4]: " VERSION_CHOICE
+  # Calculate next versions
+  NEXT_PATCH=$(npm version patch --no-git-tag-version 2>/dev/null && node -p "require('./package.json').version" && git checkout package.json 2>/dev/null || echo "")
+  NEXT_MINOR=$(npm version minor --no-git-tag-version 2>/dev/null && node -p "require('./package.json').version" && git checkout package.json 2>/dev/null || echo "")
+  NEXT_MAJOR=$(npm version major --no-git-tag-version 2>/dev/null && node -p "require('./package.json').version" && git checkout package.json 2>/dev/null || echo "")
+
+  echo -e "  ${GREEN}1)${NC} patch   - Bug fixes (backward compatible)"
+  echo -e "     → $PACKAGE_VERSION ${GREEN}→${NC} $NEXT_PATCH"
+  echo ""
+  echo -e "  ${GREEN}2)${NC} minor   - New features (backward compatible)"
+  echo -e "     → $PACKAGE_VERSION ${GREEN}→${NC} $NEXT_MINOR"
+  echo ""
+  echo -e "  ${GREEN}3)${NC} major   - Breaking changes"
+  echo -e "     → $PACKAGE_VERSION ${GREEN}→${NC} $NEXT_MAJOR"
+  echo ""
+  echo -e "  ${GREEN}4)${NC} cancel  - Exit without publishing"
+  echo ""
+  echo -e "${CYAN}→ Type 1, 2, 3, or 4 and press Enter${NC}"
+  read -p "Your choice: " VERSION_CHOICE
 
   case $VERSION_CHOICE in
     1)
@@ -148,9 +157,7 @@ echo -e "${YELLOW}(・_・) Cleaning previous builds...${NC}"
 rm -rf dist/
 
 echo -e "${YELLOW}(>_<) Building project...${NC}"
-yarn build
-
-if [ $? -ne 0 ]; then
+if ! yarn build; then
   echo -e "${RED}(x_x) Build failed!${NC}"
   exit 1
 fi
@@ -170,9 +177,7 @@ echo ""
 if ls src/**/*.spec.ts >/dev/null 2>&1 || ls test/**/*.spec.ts >/dev/null 2>&1; then
   echo -e "${YELLOW}(o_o) Running tests...${NC}"
 
-  yarn test
-
-  if [ $? -ne 0 ]; then
+  if ! yarn test; then
     echo -e "${RED}(x_x) Tests failed!${NC}"
     read -p "$(echo -e ${YELLOW}Continue anyway? [y/N]:${NC} )" -n 1 -r
     echo
@@ -227,9 +232,7 @@ if [ "$DRY_RUN" = false ]; then
   echo -e "${YELLOW}(>_<) Publishing to npm...${NC}"
   echo ""
 
-  npm publish --access public
-
-  if [ $? -eq 0 ]; then
+  if npm publish --access public; then
     echo ""
     echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${GREEN}\\(^o^)/ SUCCESS! Published $PACKAGE_NAME@$PACKAGE_VERSION${NC}"
