@@ -83,6 +83,20 @@ Complete production-ready example:
 ts-node src/examples/06-real-world-ecommerce.ts
 ```
 
+### 7. URL Health Check (`07-url-health-check.ts`)
+
+Demonstrates URL health checking:
+- Check if a single URL is alive using HTTP HEAD
+- Check multiple URLs at once
+- Filter out dead URLs from scraped data
+- Combine URL health check with web scraping
+- Use proxy for URL checking
+
+**Run:**
+```bash
+ts-node src/examples/07-url-health-check.ts
+```
+
 ## Running Examples
 
 ### Prerequisites
@@ -147,6 +161,7 @@ import {
   demonstrateAlternativePatterns,
   demonstrateXmlParsing,
   demonstrateRealWorldEcommerce,
+  demonstrateUrlHealthCheck,
 } from '@hanivanrizky/nestjs-xpath-parser/examples';
 
 // Run a specific demo
@@ -185,7 +200,8 @@ export { demonstrateFeature };
 2. **Check Example 2** if your XPath patterns aren't working
 3. **Use Example 3** to learn about data transformation
 4. **Study Example 6** for production-ready patterns
-5. **Modify examples** to fit your specific scraping needs
+5. **Use Example 7** to verify scraped URLs are valid before storing them
+6. **Modify examples** to fit your specific scraping needs
 
 ## Common Patterns
 
@@ -240,6 +256,27 @@ const patterns: PatternField[] = [
     ],
   },
 }
+```
+
+### URL Health Check
+```typescript
+// Check single URL
+const result = await scraper.checkUrlAlive('https://example.com');
+// Returns: { url: string, alive: boolean, statusCode?: number, error?: string }
+
+// Check multiple URLs
+const results = await scraper.checkUrlAlive([
+  'https://example.com',
+  'https://another.com',
+]);
+
+// Filter dead URLs
+const aliveUrls = results.filter(r => r.alive);
+
+// Combine with scraping
+const scrapedData = await scraper.evaluateWebsite({ url, patterns });
+const productUrls = scrapedData.results.map(r => r.link);
+const healthResults = await scraper.checkUrlAlive(productUrls);
 ```
 
 ## Need Help?
