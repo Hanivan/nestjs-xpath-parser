@@ -1,5 +1,6 @@
 # Source files
 src/
+!src/examples/
 libs/
 *.ts
 !*.d.ts
@@ -52,6 +53,7 @@ package-lock.json
 .env
 .env.*
 *.log
+TODO.md
 
 # Keep these files (don't ignore them)
 !README.md

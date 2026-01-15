@@ -34,6 +34,9 @@
 - **(.\_.) URL Health Check**: Check if URLs are alive using HTTP HEAD requests
 - **(.\_.) HTTP Fetching**: Built-in HTML/XML fetching with proxy support
 - **(☆^O^☆) HTTP Retry**: Automatic retry with exponential backoff (default: 3 retries, configurable)
+- **(o_o) Log Level Control**: Control which log messages are displayed (errors always logged)
+- **(.\_.) XPath Error Suppression**: Optional suppression of libxmljs XPath error messages
+- **(☆^O^☆) Engine Selection**: Choose between libxmljs (default) or JSDOM for parsing
 - **(.\_.) Multi-Format Support**: Parse both HTML and XML content
 - **(.\_.) Return Types**: Extract text content or raw HTML
 - **(>\_<) Alternative Patterns**: Fallback patterns for robust extraction
@@ -74,6 +77,9 @@ import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
   imports: [
     ScraperHtmlModule.forRoot({
       maxRetries: 5, // Custom retry count (default: 3)
+      logLevel: ['error', 'warn'], // Only log errors and warnings
+      suppressXpathErrors: true, // Suppress libxmljs XPath error messages
+      engine: 'libxmljs', // Use libxmljs (default) or 'jsdom' for JSDOM
     }),
   ],
 })
@@ -94,6 +100,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         maxRetries: configService.get<number>('SCRAPER_MAX_RETRIES', 3),
+        logLevel: configService.get<string[]>('SCRAPER_LOG_LEVEL', [
+          'log',
+          'error',
+          'warn',
+        ]),
+        suppressXpathErrors: configService.get<boolean>(
+          'SCRAPER_SUPPRESS_XPATH_ERRORS',
+          false,
+        ),
+        engine: configService.get<'libxmljs' | 'jsdom'>(
+          'SCRAPER_ENGINE',
+          'libxmljs',
+        ),
       }),
       inject: [ConfigService],
     }),
@@ -156,6 +175,8 @@ export class YourService {
 - [URL Health Check](docs/features/url-health-check.md) - Check if URLs are alive
 - [User-Agent Rotation](docs/features/user-agent-rotation.md) - Automatic user-agent rotation
 - [HTTP Retry & Proxy](docs/features/retry-proxy.md) - Configure retry and proxy settings
+- [Logging Configuration](docs/features/logging.md) - Control log verbosity
+- [Engine Selection](docs/features/engine-selection.md) - Choose between libxmljs and JSDOM
 
 ### Reference
 

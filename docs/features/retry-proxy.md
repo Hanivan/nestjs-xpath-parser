@@ -1,6 +1,6 @@
 # HTTP Retry & Proxy Configuration
 
-Automatic retry with exponential backoff and proxy support.
+Automatic retry with exponential backoff and proxy support for network requests.
 
 ## Overview
 
@@ -378,5 +378,7 @@ export class ScrapingService {
 
 ## Related Features
 
+- [Logging Configuration](./logging.md) - Control log verbosity
+- [Engine Selection](./engine-selection.md) - Choose between libxmljs and JSDOM
 - [User-Agent Rotation](./user-agent-rotation.md) - Automatic user-agent rotation
 - [URL Health Check](./url-health-check.md) - Check URL availability with proxy

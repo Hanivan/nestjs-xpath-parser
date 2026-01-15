@@ -6,15 +6,27 @@ import { HtmlNode, HtmlNodeArray } from '../types';
 export class HtmlBuilder {
   private engine: EngineHtmlBuilder;
   private dom: libxmljs.Document | JSDOM;
+  private originalErrorHandler?: ((msg: string) => void) | null;
 
   private constructor(
     plainText: string,
     useJSDom: boolean = false,
     contentType: 'text/html' | 'text/xml' = 'text/html',
+    suppressErrors: boolean = false,
   ) {
     this.engine = useJSDom
       ? EngineHtmlBuilder.JSDOM
       : EngineHtmlBuilder.LIBXMLJS;
+
+    // Suppress libxmljs XPath errors if requested
+    if (this.engine === EngineHtmlBuilder.LIBXMLJS && suppressErrors) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+      this.originalErrorHandler = (libxmljs as any).errorCatchingHandler;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      (libxmljs as any).errorCatchingHandler = () => {
+        // Silently ignore XPath errors
+      };
+    }
 
     if (this.engine === EngineHtmlBuilder.JSDOM) {
       this.dom = new JSDOM(plainText);
@@ -30,8 +42,23 @@ export class HtmlBuilder {
     plainText: string,
     useJSDom: boolean = false,
     contentType: 'text/html' | 'text/xml' = 'text/html',
+    suppressErrors: boolean = false,
   ): HtmlBuilder {
-    return new HtmlBuilder(plainText, useJSDom, contentType);
+    return new HtmlBuilder(plainText, useJSDom, contentType, suppressErrors);
+  }
+
+  /**
+   * Clean up error handler suppression
+   */
+  destroy(): void {
+    if (
+      this.originalErrorHandler !== undefined &&
+      this.engine === EngineHtmlBuilder.LIBXMLJS
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      (libxmljs as any).errorCatchingHandler = this.originalErrorHandler;
+      this.originalErrorHandler = undefined;
+    }
   }
 
   getXpath(expression: string): HtmlNode {

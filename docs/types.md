@@ -146,7 +146,40 @@ Module configuration options.
 ```typescript
 interface ScraperHtmlModuleOptions {
   maxRetries?: number; // Maximum HTTP retries (default: 3)
+  logLevel?: LogLevel | LogLevel[]; // Log levels to enable (default: ['log', 'error', 'warn'])
+  suppressXpathErrors?: boolean; // Suppress libxmljs XPath error messages (default: false)
+  engine?: 'libxmljs' | 'jsdom'; // HTML/XML parsing engine (default: 'libxmljs')
 }
+```
+
+**Log Levels:**
+
+- `'log'` - General log messages
+- `'error'` - Error messages (always logged)
+- `'warn'` - Warning messages
+- `'debug'` - Debug messages
+- `'verbose'` - Verbose messages
+- `'fatal'` - Fatal error messages
+
+**Important:** Error messages are **always logged**, regardless of configuration.
+
+**Examples:**
+
+```typescript
+// Only log errors (errors are always logged, same as empty array)
+ScraperHtmlModule.forRoot({
+  logLevel: [],
+});
+
+// Log errors and warnings
+ScraperHtmlModule.forRoot({
+  logLevel: ['warn'], // errors are always included
+});
+
+// Log everything (noisy)
+ScraperHtmlModule.forRoot({
+  logLevel: ['log', 'error', 'warn', 'debug', 'verbose'],
+});
 ```
 
 ## Service Method Types

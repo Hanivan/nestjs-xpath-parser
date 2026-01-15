@@ -351,8 +351,118 @@ console.log(validation);
 4. **Test edge cases**: Validate with various HTML structures
 5. **Handle failures gracefully**: Provide fallback patterns
 
+## Suppressing XPath Error Messages
+
+By default, libxmljs logs XPath syntax errors to stderr. When validating patterns that are expected to fail, or when using alternative patterns, you can suppress these error messages.
+
+### When to Use
+
+- **Alternative patterns**: When using `alterPattern` with fallback XPaths, you don't need error messages for failed patterns
+- **Validation**: When validating XPaths and expecting some to fail
+- **Cleaner logs**: When you want cleaner console output during development
+
+### Configuring Error Suppression
+
+```typescript
+import { Module } from '@nestjs/common';
+import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
+
+@Module({
+  imports: [
+    ScraperHtmlModule.forRoot({
+      suppressXpathErrors: true, // Suppress libxmljs XPath error messages
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### Example with Alternative Patterns
+
+When using `suppressXpathErrors: true` at module level, failed fallback patterns won't produce error messages:
+
+```typescript
+// Module configuration
+ScraperHtmlModule.forRoot({
+  suppressXpathErrors: true,
+});
+
+// Usage - no XPath errors in console
+const result = await scraperService.evaluateWebsite({
+  html: '<html><body><h1>Title</h1></body></html>',
+  patterns: [
+    {
+      key: 'title',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//meta[@property="og:title"]/@content'], // Will fail silently
+      meta: {
+        alterPattern: ['//h1/text()', '//title/text()'], // Fallback patterns
+      },
+    },
+  ],
+});
+```
+
+### Validation with Error Suppression
+
+```typescript
+// Module with error suppression enabled
+ScraperHtmlModule.forRoot({
+  suppressXpathErrors: true,
+});
+
+// Validate patterns - invalid patterns won't print to stderr
+const validation = scraperService.validateXpath(html, [
+  '//h1/text()', // Valid
+  '//p/text()', // Valid
+  '//invalid[[[xpath', // Invalid, but no error printed to console
+]);
+
+// Check validation results programmatically
+validation.results.forEach((result) => {
+  if (!result.valid) {
+    console.log(`Invalid pattern: ${result.xpath}`);
+    console.log(`Error: ${result.error}`);
+  }
+});
+```
+
+### Async Configuration
+
+```typescript
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot(),
+    ScraperHtmlModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        suppressXpathErrors: configService.get<boolean>(
+          'SCRAPER_SUPPRESS_XPATH_ERRORS',
+          false,
+        ),
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### Environment Variable
+
+```env
+# .env
+SCRAPER_SUPPRESS_XPATH_ERRORS=true
+```
+
 ## Related Features
 
 - [Pattern-Based Extraction](./pattern-based-extraction.md) - Using validated patterns
 - [Container-Based Extraction](./container-extraction.md) - Validating container patterns
 - [Alternative Patterns](./pattern-based-extraction.md#fallback-patterns) - Providing fallbacks
+- [Logging Configuration](./logging.md) - Control overall log verbosity

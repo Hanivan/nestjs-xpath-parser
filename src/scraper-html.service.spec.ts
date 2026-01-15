@@ -78,6 +78,216 @@ describe('ScraperHtmlService', () => {
     expect(customService).toBeDefined();
   });
 
+  it('should accept custom logLevel configuration', async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ScraperHtmlService,
+        {
+          provide: HttpService,
+          useValue: mockHttpService,
+        },
+        {
+          provide: 'SCRAPER_HTML_OPTIONS',
+          useValue: { logLevel: ['error', 'warn'] },
+        },
+      ],
+    }).compile();
+
+    const customService = module.get<ScraperHtmlService>(ScraperHtmlService);
+    expect(customService).toBeDefined();
+  });
+
+  describe('LogLevel', () => {
+    it('should have default log levels', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+        ],
+      }).compile();
+
+      const defaultService = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(defaultService).toBeDefined();
+      // Default should be ['log', 'error', 'warn']
+      expect(defaultService['logLevels']).toEqual(['log', 'error', 'warn']);
+    });
+
+    it('should accept empty logLevel array (minimal logging)', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { logLevel: [] },
+          },
+        ],
+      }).compile();
+
+      const service = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(service).toBeDefined();
+      expect(service['logLevels']).toEqual([]);
+    });
+
+    it('should always log errors regardless of configuration', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { logLevel: [] }, // Empty array = no logs except errors
+          },
+        ],
+      }).compile();
+
+      const service = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(service).toBeDefined();
+
+      // Error should always be loggable
+      expect(service['shouldLog']('error')).toBe(true);
+
+      // But other levels should not
+      expect(service['shouldLog']('warn')).toBe(false);
+      expect(service['shouldLog']('debug')).toBe(false);
+      expect(service['shouldLog']('log')).toBe(false);
+    });
+
+    it('should accept single logLevel string', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { logLevel: 'warn' },
+          },
+        ],
+      }).compile();
+
+      const service = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(service).toBeDefined();
+      expect(service['logLevels']).toEqual(['warn']);
+
+      // warn should be loggable
+      expect(service['shouldLog']('warn')).toBe(true);
+
+      // error is always loggable
+      expect(service['shouldLog']('error')).toBe(true);
+
+      // log should not be loggable
+      expect(service['shouldLog']('log')).toBe(false);
+    });
+  });
+
+  describe('suppressXpathErrors', () => {
+    it('should have suppressXpathErrors disabled by default', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+        ],
+      }).compile();
+
+      const defaultService = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(defaultService).toBeDefined();
+      expect(defaultService['suppressXpathErrors']).toBe(false);
+    });
+
+    it('should accept custom suppressXpathErrors configuration', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { suppressXpathErrors: true },
+          },
+        ],
+      }).compile();
+
+      const customService = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(customService).toBeDefined();
+      expect(customService['suppressXpathErrors']).toBe(true);
+    });
+  });
+
+  describe('engine', () => {
+    it('should have libxmljs as default engine', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+        ],
+      }).compile();
+
+      const defaultService = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(defaultService).toBeDefined();
+      expect(defaultService['engine']).toBe('libxmljs');
+    });
+
+    it('should accept jsdom engine configuration', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { engine: 'jsdom' as const },
+          },
+        ],
+      }).compile();
+
+      const customService = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(customService).toBeDefined();
+      expect(customService['engine']).toBe('jsdom');
+    });
+
+    it('should accept libxmljs engine configuration explicitly', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { engine: 'libxmljs' as const },
+          },
+        ],
+      }).compile();
+
+      const customService = module.get<ScraperHtmlService>(ScraperHtmlService);
+      expect(customService).toBeDefined();
+      expect(customService['engine']).toBe('libxmljs');
+    });
+  });
+
   describe('evaluateWebsite', () => {
     it('should extract data from HTML using XPath patterns', async () => {
       const html = `
@@ -416,6 +626,212 @@ describe('ScraperHtmlService', () => {
           url: 'https://example.com',
         }) as unknown,
       );
+    });
+  });
+
+  describe('evaluateWebsite with alternative patterns', () => {
+    it('should use alternative patterns when primary pattern fails', async () => {
+      const html = `
+        <html>
+          <body>
+            <h1>Fallback Title</h1>
+          </body>
+        </html>
+      `;
+
+      const options = {
+        html,
+        patterns: [
+          {
+            key: 'title',
+            patternType: 'xpath' as const,
+            returnType: 'text' as const,
+            // Primary pattern won't match (meta tag doesn't exist)
+            patterns: ['//meta[@property="og:title"]/@content'],
+            meta: {
+              alterPattern: ['//h1/text()'], // Fallback will match
+            },
+            pipes: { trim: true },
+          },
+        ],
+      };
+
+      const result = await service.evaluateWebsite(options);
+
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0].title).toBe('Fallback Title');
+    });
+
+    it('should handle all patterns failing gracefully', async () => {
+      const html = `
+        <html>
+          <body>
+            <p>Some content</p>
+          </body>
+        </html>
+      `;
+
+      const options = {
+        html,
+        patterns: [
+          {
+            key: 'title',
+            patternType: 'xpath' as const,
+            returnType: 'text' as const,
+            patterns: ['//nonexistent/text()'],
+            meta: {
+              alterPattern: ['//also-nonexistent/text()'],
+            },
+          },
+        ],
+      };
+
+      const result = await service.evaluateWebsite(options);
+
+      // Should return empty results when no patterns match
+      expect(result.results).toHaveLength(0);
+    });
+  });
+
+  describe('evaluateWebsite with engine configuration', () => {
+    // Note: JSDOM test is skipped since JSDOM is mocked to avoid ESM issues in Jest
+    // JSDOM functionality is tested in example files (08-configuration-options.ts)
+    it.skip('should use JSDOM engine when configured', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { engine: 'jsdom' as const },
+          },
+        ],
+      }).compile();
+
+      const jsdomService = module.get<ScraperHtmlService>(ScraperHtmlService);
+
+      const html = `
+        <html>
+          <body>
+            <h1>JSDOM Test</h1>
+          </body>
+        </html>
+      `;
+
+      const options = {
+        html,
+        patterns: [
+          {
+            key: 'title',
+            patternType: 'xpath' as const,
+            returnType: 'text' as const,
+            patterns: ['//h1/text()'],
+          },
+        ],
+      };
+
+      const result = await jsdomService.evaluateWebsite(options);
+
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0].title).toBe('JSDOM Test');
+    });
+
+    it('should use libxmljs engine when configured', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { engine: 'libxmljs' as const },
+          },
+        ],
+      }).compile();
+
+      const libxmljsService =
+        module.get<ScraperHtmlService>(ScraperHtmlService);
+
+      const html = `
+        <html>
+          <body>
+            <h1>libxmljs Test</h1>
+          </body>
+        </html>
+      `;
+
+      const options = {
+        html,
+        patterns: [
+          {
+            key: 'title',
+            patternType: 'xpath' as const,
+            returnType: 'text' as const,
+            patterns: ['//h1/text()'],
+          },
+        ],
+      };
+
+      const result = await libxmljsService.evaluateWebsite(options);
+
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0].title).toBe('libxmljs Test');
+    });
+  });
+
+  describe('suppressXpathErrors functionality', () => {
+    it('should still extract data when primary XPath fails and alternative succeeds', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ScraperHtmlService,
+          {
+            provide: HttpService,
+            useValue: mockHttpService,
+          },
+          {
+            provide: 'SCRAPER_HTML_OPTIONS',
+            useValue: { suppressXpathErrors: true },
+          },
+        ],
+      }).compile();
+
+      const suppressService =
+        module.get<ScraperHtmlService>(ScraperHtmlService);
+
+      const html = `
+        <html>
+          <body>
+            <h1>Title from H1</h1>
+          </body>
+        </html>
+      `;
+
+      const options = {
+        html,
+        patterns: [
+          {
+            key: 'title',
+            patternType: 'xpath' as const,
+            returnType: 'text' as const,
+            // Primary pattern: invalid XPath (will fail silently)
+            patterns: ['//h1[[[invalid'],
+            meta: {
+              alterPattern: ['//h1/text()'], // Fallback will work
+            },
+          },
+        ],
+      };
+
+      const result = await suppressService.evaluateWebsite(options);
+
+      // Should fall back to the working pattern
+      expect(result.results).toHaveLength(1);
+      expect(result.results[0].title).toBe('Title from H1');
     });
   });
 });

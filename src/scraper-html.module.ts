@@ -1,10 +1,7 @@
 import { Module, DynamicModule, ModuleMetadata } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ScraperHtmlService } from './scraper-html.service';
-
-export interface ScraperHtmlModuleOptions {
-  maxRetries?: number;
-}
+import { ScraperHtmlModuleOptions } from './types';
 
 export interface ScraperHtmlModuleAsyncOptions extends ScraperHtmlModuleOptions {
   imports?: ModuleMetadata['imports'];

@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
+import { Injectable, Logger, Inject, Optional, LogLevel } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, retry, timer, catchError, throwError } from 'rxjs';
 import { AxiosError } from 'axios';
@@ -12,6 +12,7 @@ import {
   EvaluateOptions,
   ExtractionResult,
   UrlHealthCheckResult,
+  type ScraperHtmlModuleOptions,
 } from './types';
 
 @Injectable()
@@ -19,17 +20,42 @@ export class ScraperHtmlService {
   private readonly logger = new Logger(ScraperHtmlService.name);
   private readonly userAgentGenerator: UserAgent;
   private readonly maxRetries: number;
+  private readonly logLevels: LogLevel[];
+  private readonly suppressXpathErrors: boolean;
+  private readonly engine: 'libxmljs' | 'jsdom';
 
   constructor(
     private readonly httpService: HttpService,
     @Inject('SCRAPER_HTML_OPTIONS')
     @Optional()
-    options?: { maxRetries?: number },
+    options?: ScraperHtmlModuleOptions,
   ) {
     // Initialize user agent generator for rotation
     this.userAgentGenerator = new UserAgent();
     // Set max retries from options or default to 3
     this.maxRetries = options?.maxRetries ?? 3;
+    // Set log levels from options
+    this.logLevels = options?.logLevel
+      ? Array.isArray(options.logLevel)
+        ? options.logLevel
+        : [options.logLevel]
+      : ['log', 'error', 'warn'];
+    // Set XPath error suppression from options or default to false
+    this.suppressXpathErrors = options?.suppressXpathErrors ?? false;
+    // Set engine from options or default to libxmljs
+    this.engine = options?.engine ?? 'libxmljs';
+  }
+
+  private shouldLog(level: LogLevel): boolean {
+    // Always log errors, regardless of configuration
+    if (level === 'error') {
+      return true;
+    }
+    // Empty log levels means only log errors
+    if (this.logLevels.length === 0) {
+      return false;
+    }
+    return this.logLevels.includes(level);
   }
 
   async evaluateWebsite<T = ExtractionResult>(
@@ -48,11 +74,15 @@ export class ScraperHtmlService {
 
     const dom = HtmlBuilder.loadHtml(
       html,
-      false,
+      this.engine === 'jsdom',
       options.contentType || 'text/html',
+      this.suppressXpathErrors,
     );
 
     const results = this.extractData<T>(options.patterns, dom);
+
+    // Clean up error handler suppression
+    dom.destroy();
 
     return {
       results,
@@ -73,7 +103,12 @@ export class ScraperHtmlService {
       error?: string;
     }>;
   } {
-    const dom = HtmlBuilder.loadHtml(html);
+    const dom = HtmlBuilder.loadHtml(
+      html,
+      this.engine === 'jsdom',
+      'text/html',
+      this.suppressXpathErrors,
+    );
     const results: {
       valid: boolean;
       results: Array<{
@@ -108,6 +143,9 @@ export class ScraperHtmlService {
         }
       });
     }
+
+    // Clean up error handler suppression
+    dom.destroy();
 
     return results;
   }
@@ -234,7 +272,9 @@ export class ScraperHtmlService {
           return nodes;
         }
       } catch (error) {
-        this.logger.debug(`XPath failed: ${xpath}`, error);
+        if (this.shouldLog('debug')) {
+          this.logger.debug(`XPath failed: ${xpath}`, error);
+        }
       }
     }
 
@@ -254,7 +294,9 @@ export class ScraperHtmlService {
       // Use the context node to search within its subtree
       return dom.findXpathInContext(xpath, context) as HtmlNode[];
     } catch (error) {
-      this.logger.debug(`Context XPath failed: ${xpath}`, error);
+      if (this.shouldLog('debug')) {
+        this.logger.debug(`Context XPath failed: ${xpath}`, error);
+      }
       return [];
     }
   }
@@ -349,7 +391,9 @@ export class ScraperHtmlService {
     // Generate a random user agent for each request
     const userAgent = this.userAgentGenerator.random().toString();
 
-    this.logger.debug(`Fetching ${url} with User-Agent: ${userAgent}`);
+    if (this.shouldLog('debug')) {
+      this.logger.debug(`Fetching ${url} with User-Agent: ${userAgent}`);
+    }
 
     const config: Record<string, unknown> = {
       headers: {
@@ -364,7 +408,9 @@ export class ScraperHtmlService {
           ? useProxy
           : process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
       if (proxyUrl) {
-        this.logger.debug(`Using proxy: ${proxyUrl}`);
+        if (this.shouldLog('debug')) {
+          this.logger.debug(`Using proxy: ${proxyUrl}`);
+        }
         config.httpAgent = new HttpsProxyAgent(proxyUrl);
         config.httpsAgent = new HttpsProxyAgent(proxyUrl);
       }
@@ -382,25 +428,31 @@ export class ScraperHtmlService {
               axiosError.code === 'ECONNRESET';
 
             if (!isRetryable) {
-              this.logger.error(
-                `Non-retryable error fetching ${url}: ${axiosError.message}`,
-              );
+              if (this.shouldLog('error')) {
+                this.logger.error(
+                  `Non-retryable error fetching ${url}: ${axiosError.message}`,
+                );
+              }
               throw error;
             }
 
             const delayMs = Math.min(1000 * Math.pow(2, retryIndex - 1), 10000); // Exponential backoff, max 10s
-            this.logger.warn(
-              `Retry ${retryIndex}/${this.maxRetries} for ${url} after ${delayMs}ms (error: ${axiosError.message})`,
-            );
+            if (this.shouldLog('warn')) {
+              this.logger.warn(
+                `Retry ${retryIndex}/${this.maxRetries} for ${url} after ${delayMs}ms (error: ${axiosError.message})`,
+              );
+            }
 
             return timer(delayMs);
           },
         }),
         catchError((error: Error) => {
-          this.logger.error(
-            `Failed to fetch URL after ${this.maxRetries} retries: ${url}`,
-            error,
-          );
+          if (this.shouldLog('error')) {
+            this.logger.error(
+              `Failed to fetch URL after ${this.maxRetries} retries: ${url}`,
+              error,
+            );
+          }
           return throwError(() => error);
         }),
       ),
