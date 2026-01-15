@@ -218,7 +218,13 @@ export class ScraperHtmlService {
       );
     }
 
-    for (const xpath of pattern.patterns) {
+    // Collect all patterns: primary patterns first, then alternative patterns
+    const allPatterns = [...pattern.patterns];
+    if (pattern.meta?.alterPattern) {
+      allPatterns.push(...pattern.meta.alterPattern);
+    }
+
+    for (const xpath of allPatterns) {
       try {
         const nodes = context
           ? this.findXpathInContext(xpath, context, dom)

@@ -83,14 +83,17 @@ export class HtmlBuilder {
     } else {
       const element = node as libxmljs.Node;
 
-      // Check if it's a text node (has toString but not text method)
-      if ('text' in element && typeof element.text === 'function') {
+      // Check if it's an attribute node (has value method)
+      if ('value' in element && typeof element.value === 'function') {
+        // It's an attribute node, use value() to get the attribute value
+        return (element.value as () => string)().trim();
+      } else if ('text' in element && typeof element.text === 'function') {
         // It's an element node
         const text = (element.text as () => string)().trim();
         // Normalize whitespace: replace multiple spaces with single space
         return text.replace(/\s+/g, ' ').trim();
       } else {
-        // It's a text or attribute node, use toString()
+        // It's a text node, use toString()
         const text = (element.toString as () => string)().trim();
         // Normalize whitespace: replace multiple spaces with single space
         return text.replace(/\s+/g, ' ').trim();

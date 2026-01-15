@@ -116,7 +116,9 @@ async function demonstrateUrlHealthCheck() {
     .map((r) => r.link as string)
     .filter((url) => url && url.startsWith('http'));
 
-  console.log(`Found ${scrapedData.results.length} products, checking first ${productUrls.length} URLs...`);
+  console.log(
+    `Found ${scrapedData.results.length} products, checking first ${productUrls.length} URLs...`,
+  );
 
   if (productUrls.length > 0) {
     const healthResults = await scraper.checkUrlAlive(productUrls);
@@ -126,7 +128,9 @@ async function demonstrateUrlHealthCheck() {
       const productName = scrapedData.results[index].name as string;
       console.log(`   Product: "${productName}"`);
       console.log(`   URL: ${result.url}`);
-      console.log(`   Status: ${result.alive ? '✓ Alive' : '✗ Dead'} (${result.statusCode})`);
+      console.log(
+        `   Status: ${result.alive ? '✓ Alive' : '✗ Dead'} (${result.statusCode})`,
+      );
       console.log('');
     });
   }
@@ -134,9 +138,13 @@ async function demonstrateUrlHealthCheck() {
   // Example 5: Use proxy for URL checking
   console.log('(o_o) Example 5: URL Health Check with Proxy');
   console.log('━'.repeat(80));
-  console.log('Note: Set HTTP_PROXY or HTTPS_PROXY environment variable to use proxy');
+  console.log(
+    'Note: Set HTTP_PROXY or HTTPS_PROXY environment variable to use proxy',
+  );
   console.log('Or pass proxy URL directly:');
-  console.log('   await scraper.checkUrlAlive(urls, { useProxy: "http://proxy:8080" });');
+  console.log(
+    '   await scraper.checkUrlAlive(urls, { useProxy: "http://proxy:8080" });',
+  );
   console.log('');
 
   // Summary
@@ -158,7 +166,10 @@ if (require.main === module) {
   demonstrateUrlHealthCheck()
     .then(() => console.log('\n\\(^o^)/ URL health check demo completed!'))
     .catch((error) => {
-      console.error('\n(x_x) Error during demo:', error instanceof Error ? error.message : String(error));
+      console.error(
+        '\n(x_x) Error during demo:',
+        error instanceof Error ? error.message : String(error),
+      );
       process.exit(1);
     });
 }
