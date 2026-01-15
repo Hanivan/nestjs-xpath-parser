@@ -46,7 +46,6 @@ Thumbs.db
 node_modules/
 npm-debug.log
 yarn-error.log
-yarn.lock
 package-lock.json
 
 # Misc
@@ -54,6 +53,7 @@ package-lock.json
 .env.*
 *.log
 TODO.md
+*.tsbuildinfo
 
 # Keep these files (don't ignore them)
 !README.md
