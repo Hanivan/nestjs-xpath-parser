@@ -18,8 +18,8 @@
 
 ### Type Safety
 
-- [ ] Replace `eslint-disable` comments with proper type definitions for libxmljs
-- [ ] Consider creating type definitions for libxmljs internal properties
+- [x] Replace `eslint-disable` comments with proper type definitions for libxmljs
+- [x] Create type definitions for libxmljs internal properties (see src/types/libxmljs.d.ts)
 
 ### Testing
 

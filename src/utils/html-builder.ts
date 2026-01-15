@@ -3,10 +3,20 @@ import * as libxmljs from 'libxmljs2';
 import { EngineHtmlBuilder } from '../enums';
 import { HtmlNode, HtmlNodeArray } from '../types';
 
+/**
+ * Type augmentation for libxmljs error handling
+ * See: src/types/libxmljs.d.ts for the full type definition
+ */
+type LibxmljsModule = typeof libxmljs & {
+  errorCatchingHandler?: ((message: string) => void) | undefined;
+};
+
+const libxmljsWithHandlers = libxmljs as LibxmljsModule;
+
 export class HtmlBuilder {
   private engine: EngineHtmlBuilder;
   private dom: libxmljs.Document | JSDOM;
-  private originalErrorHandler?: ((msg: string) => void) | null;
+  private originalErrorHandler?: ((message: string) => void) | undefined;
 
   private constructor(
     plainText: string,
@@ -18,12 +28,10 @@ export class HtmlBuilder {
       ? EngineHtmlBuilder.JSDOM
       : EngineHtmlBuilder.LIBXMLJS;
 
-    // Suppress libxmljs XPath errors if requested
     if (this.engine === EngineHtmlBuilder.LIBXMLJS && suppressErrors) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-      this.originalErrorHandler = (libxmljs as any).errorCatchingHandler;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      (libxmljs as any).errorCatchingHandler = () => {
+      // Suppress libxmljs XPath errors by replacing the error handler
+      this.originalErrorHandler = libxmljsWithHandlers.errorCatchingHandler;
+      libxmljsWithHandlers.errorCatchingHandler = () => {
         // Silently ignore XPath errors
       };
     }
@@ -55,8 +63,8 @@ export class HtmlBuilder {
       this.originalErrorHandler !== undefined &&
       this.engine === EngineHtmlBuilder.LIBXMLJS
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      (libxmljs as any).errorCatchingHandler = this.originalErrorHandler;
+      // Restore the original error handler
+      libxmljsWithHandlers.errorCatchingHandler = this.originalErrorHandler;
       this.originalErrorHandler = undefined;
     }
   }
@@ -105,27 +113,27 @@ export class HtmlBuilder {
     if (!node) return '';
 
     if (this.engine === EngineHtmlBuilder.JSDOM) {
-      const element = node as Element;
-      return element.textContent?.trim() || '';
-    } else {
-      const element = node as libxmljs.Node;
-
-      // Check if it's an attribute node (has value method)
-      if ('value' in element && typeof element.value === 'function') {
-        // It's an attribute node, use value() to get the attribute value
-        return (element.value as () => string)().trim();
-      } else if ('text' in element && typeof element.text === 'function') {
-        // It's an element node
-        const text = (element.text as () => string)().trim();
-        // Normalize whitespace: replace multiple spaces with single space
-        return text.replace(/\s+/g, ' ').trim();
-      } else {
-        // It's a text node, use toString()
-        const text = (element.toString as () => string)().trim();
-        // Normalize whitespace: replace multiple spaces with single space
-        return text.replace(/\s+/g, ' ').trim();
-      }
+      return (node as Element).textContent?.trim() || '';
     }
+
+    const libxmlNode = node as libxmljs.Node;
+
+    // Attribute node: use value() method (only Attribute has value())
+    if ('value' in libxmlNode && typeof libxmlNode.value === 'function') {
+      return (libxmlNode as { value: () => string }).value().trim();
+    }
+
+    // Element or Text node: use text() method if available
+    if ('text' in libxmlNode && typeof libxmlNode.text === 'function') {
+      return this.normalizeWhitespace(libxmlNode.text());
+    }
+
+    // Fallback: use toString() method
+    return this.normalizeWhitespace(libxmlNode.toString());
+  }
+
+  private normalizeWhitespace(text: string): string {
+    return text.trim().replace(/\s+/g, ' ');
   }
 
   value(node: HtmlNode): string {
@@ -136,12 +144,10 @@ export class HtmlBuilder {
     if (!node) return '';
 
     if (this.engine === EngineHtmlBuilder.JSDOM) {
-      const element = node as Element;
-      return element.innerHTML || '';
-    } else {
-      const element = node as libxmljs.Node;
-      return element.toString();
+      return (node as Element).innerHTML || '';
     }
+
+    return (node as libxmljs.Node).toString();
   }
 
   getDom(): libxmljs.Document | JSDOM {

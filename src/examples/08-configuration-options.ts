@@ -280,7 +280,6 @@ async function example5_XPathValidationWithErrorSuppression() {
   await module.close();
 }
 
-// Run all examples
 async function main() {
   try {
     await example1_SuppressXPathErrors();
@@ -291,7 +290,8 @@ async function main() {
 
     console.log('\n=== All configuration examples completed ===\n');
   } catch (error) {
-    console.error('Error running examples:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error running examples:', errorMessage);
   }
 }
 
