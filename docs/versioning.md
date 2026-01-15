@@ -1,4 +1,4 @@
-# Versioning Guide
+# Versioning & Publishing Guide
 
 Complete guide for managing versions and publishing the `@hanivanrizky/nestjs-xpath-parser` package.
 
@@ -102,95 +102,103 @@ yarn version:major   # Bump major version
 3. Confirms before making changes
 4. Updates `package.json`
 5. Optionally creates git commit and tag
-6. Shows next steps
-
-### Example Output
-
-```bash
-$ yarn version:patch
-
-(^o^)/ Version Control Script
-=============================
-
-Package: @hanivanrizky/nestjs-xpath-parser
-Current Version: 1.0.0
-
-Version Summary
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Current Version: 1.0.0
-New Version:     1.0.1
-
-Bump version to 1.0.1? [y/N]: y
-
-Updating Version
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-(・_・) Updating package.json...
-(^_^) Version updated in package.json
-
-Git Integration
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Create git commit and tag?
-  1) Yes - Commit and tag
-  2) No - Skip git operations
-
-Select option [1-2]: 1
-
-(>_<) Creating git commit...
-(>_<) Creating git tag...
-(^_^) Git commit and tag created
-
-To push to remote:
-  git push origin main
-  git push origin v1.0.1
-```
+6. Asks if you want to bump again (useful for multiple releases)
 
 ## Release Workflow
 
-### Complete Release Process
+### Recommended Complete Workflow
+
+Follow this workflow for a clean release process:
 
 ```bash
-# 1. Bump version
+# Step 1: Make your code changes
+# Edit source code, fix bugs, add features...
+
+# Step 2: Commit and push code changes
+git add .
+git commit -m "feat: add new feature"
+git push origin main
+
+# Step 3: Bump version (creates separate commit + tag)
 yarn version:patch   # or version:minor, version:major
 
-# 2. Review changes
-git diff
+# Step 4: Push the version tag
+git push --tags
 
-# 3. Update CHANGELOG.md (if applicable)
-# Edit changelog to document changes
+# Step 5: Create GitHub release
+yarn release
 
-# 4. Commit and push
-git add .
-git commit -m "chore(release): v1.0.1"
-git push origin main
-git push origin v1.0.1
-
-# 5. Build and test
-yarn build
-yarn test
-
-# 6. Pack (optional - to review tarball)
-yarn pack
-# Check the tarball contents
-tar -tzf @hanivanrizky/nestjs-xpath-parser-1.0.1.tgz
-
-# 7. Publish
-yarn publish
+# Step 6: Publish to npm
+yarn publish:auto
 ```
 
-### Quick Release (All-in-One)
+### Why This Order?
 
-```bash
-# The publish script handles:
-# - NPM login check
-# - Version check
-# - Build and test
-# - Publishing
+| Step | Command                   | What Happens                                     |
+| ---- | ------------------------- | ------------------------------------------------ |
+| 1-2  | `git commit` & `git push` | Your code changes are in git history             |
+| 3    | `yarn version:patch`      | Bumps version, creates separate commit + git tag |
+| 4    | `git push --tags`         | Pushes the version tag to remote                 |
+| 5    | `yarn release`            | Creates GitHub release from the tag              |
+| 6    | `yarn publish:auto`       | Builds, tests, and publishes to npm              |
 
-yarn publish
+**Important:** Code changes and version bumps should always be in separate commits. This keeps your git history clean and makes it easy to see what changed between versions.
+
+### Workflow Diagram
+
 ```
+┌─────────────────────────────────────────────────────────────┐
+│                    Development Cycle                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. Make Code Changes                                       │
+│     ├─ Edit source code                                     │
+│     ├─ Write tests                                         │
+│     └─ Update docs                                         │
+│                                                             │
+│  2. Commit & Push Code                                      │
+│     ├─ git add .                                           │
+│     ├─ git commit -m "feat: description"                   │
+│     └─ git push                                            │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│                     Release Cycle                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  3. Bump Version                                            │
+│     ├─ yarn version:patch/minor/major                      │
+│     ├─ Creates commit: "chore(release): bump version..."   │
+│     └─ Creates git tag: v1.0.1                             │
+│                                                             │
+│  4. Push Tags                                               │
+│     └─ git push --tags                                     │
+│                                                             │
+│  5. Create Release                                          │
+│     ├─ yarn release                                        │
+│     ├─ Creates GitHub release                              │
+│     └─ Extracts notes from CHANGELOG.md                    │
+│                                                             │
+│  6. Publish                                                 │
+│     ├─ yarn publish:auto                                   │
+│     ├─ Builds project                                      │
+│     ├─ Runs tests                                          │
+│     └─ Publishes to npm                                    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Available Scripts
+
+| Script               | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `yarn version`       | Interactive version menu                    |
+| `yarn version:patch` | Bump patch version                          |
+| `yarn version:minor` | Bump minor version                          |
+| `yarn version:major` | Bump major version                          |
+| `yarn release`       | Create git tag + GitHub release             |
+| `yarn publish:auto`  | Automated publish to npm                    |
+| `yarn publish:dry`   | Preview publish without actually publishing |
+| `yarn pack`          | Create tarball for testing                  |
 
 ## Version Bump Examples
 
@@ -205,13 +213,23 @@ yarn publish
 # 2. Test the fix
 yarn test
 
-# 3. Bump patch version
-yarn version:patch
+# 3. Commit code changes
+git add .
+git commit -m "fix: xpath attribute extraction bug"
+git push
 
+# 4. Bump patch version
+yarn version:patch
 # Output: 1.0.0 → 1.0.1
 
-# 4. Publish
-yarn publish
+# 5. Push tag
+git push --tags
+
+# 6. Create release
+yarn release
+
+# 7. Publish to npm
+yarn publish:auto
 ```
 
 ### Feature Release
@@ -225,21 +243,35 @@ yarn publish
 # 2. Test
 yarn test
 
-# 3. Bump minor version
-yarn version:minor
+# 3. Commit code changes
+git add .
+git commit -m "feat: add truncate pipe"
+git push
 
+# 4. Bump minor version
+yarn version:minor
 # Output: 1.0.0 → 1.1.0
 
-# 4. Update CHANGELOG.md
-echo "## [1.1.0] - 2024-01-15
-### Added
-- New \`truncate\` pipe for text truncation
-- Support for custom delimiter in \`multiple\` meta" >> CHANGELOG.md
+# 5. Update CHANGELOG.md
+nano CHANGELOG.md
+# Add:
+# ## [1.1.0] - 2024-01-15
+# ### Added
+# - New `truncate` pipe for text truncation
 
-# 5. Commit and publish
+# 6. Commit CHANGELOG
 git add CHANGELOG.md
 git commit -m "docs: update CHANGELOG for v1.1.0"
-yarn publish
+git push
+
+# 7. Push version tag
+git push --tags
+
+# 8. Create release
+yarn release
+
+# 9. Publish
+yarn publish:auto
 ```
 
 ### Breaking Change Release
@@ -256,28 +288,65 @@ yarn publish
 # 3. Test
 yarn test
 
-# 4. Bump major version
-yarn version:major
+# 4. Commit code changes
+git add .
+git commit -m "refactor: rename evaluateWebsite to extract"
+git push
 
+# 5. Bump major version
+yarn version:major
 # Output: 1.5.0 → 2.0.0
 
-# 5. Update CHANGELOG.md
-echo "## [2.0.0] - 2024-01-15
-### Breaking Changes
-- Renamed \`evaluateWebsite()\` to \`extract()\`
-- Removed deprecated \`meta.isPage\` option
+# 6. Update CHANGELOG.md
+nano CHANGELOG.md
+# Add:
+# ## [2.0.0] - 2024-01-15
+# ### Breaking Changes
+# - Renamed `evaluateWebsite()` to `extract()`
+# - Removed deprecated `meta.isPage` option
+#
+# ### Migration Guide
+# Old: scraper.evaluateWebsite(...)
+# New: scraper.extract(...)
 
-### Migration Guide
-Old: scraper.evaluateWebsite(...)
-New: scraper.extract(...)" >> CHANGELOG.md
+# 7. Commit CHANGELOG
+git add CHANGELOG.md
+git commit -m "docs: update CHANGELOG for v2.0.0"
+git push
 
-# 6. Commit and publish
-git add .
-git commit -m "chore(release): v2.0.0 breaking changes"
-yarn publish
+# 8. Push tag & create release
+git push --tags
+yarn release
+
+# 9. Publish
+yarn publish:auto
 ```
 
 ## Publishing
+
+### What Gets Published
+
+The package includes:
+
+```
+dist/                # Compiled JavaScript
+├── *.js            # Main files
+├── *.d.ts          # TypeScript definitions
+├── *.js.map        # Source maps
+└── examples/       # Example files (source + compiled)
+
+package.json         # Package metadata
+README.md           # Documentation
+docs/               # Additional docs
+```
+
+Excluded files (see `.npmignore`):
+
+- Source TypeScript files (except examples)
+- Test files
+- Build configurations
+- Development scripts
+- `.git`, `.github`, etc.
 
 ### Pack Without Publishing
 
@@ -286,11 +355,11 @@ Create a tarball without publishing to npm:
 ```bash
 yarn pack
 
-# Creates: @hanivanrizky/nestjs-xpath-parser-VERSION.tgz
+# Creates: @hanivanrizky-nestjs-xpath-parser-VERSION.tgz
 
 # Test locally
 cd /path/to/test-project
-npm install ../path/to/@hanivanrizky/nestjs-xpath-parser-VERSION.tgz
+npm install ../path/to/@hanivanrizky-nestjs-xpath-parser-VERSION.tgz
 ```
 
 ### Dry Run Publishing
@@ -307,12 +376,22 @@ yarn publish:dry
 ### Publish to NPM
 
 ```bash
-# Full publish with all checks
-yarn publish
+# Full automated publish with all checks
+yarn publish:auto
 
-# or
-./scripts/publish-auto.sh
+# or native npm publish
+yarn publish
 ```
+
+### What `yarn publish:auto` Does
+
+1. ✅ Checks npm authentication
+2. ✅ Verifies version doesn't exist on npm
+3. ✅ Offers to bump version if needed
+4. ✅ Cleans and builds project
+5. ✅ Runs tests
+6. ✅ Shows package contents preview
+7. ✅ Publishes to npm with public access
 
 ### Access Level
 
@@ -329,17 +408,18 @@ The package is configured for public access:
 
 ## Troubleshooting
 
-### Version Already Exists
+### Version Already Exists on npm
 
 ```bash
-Error: Version 1.0.1 already exists on npm
+Error: Version 0.1.1 already exists on npm
 ```
 
-**Solution:** Bump to a new version
+**Solution:** The `publish:auto` script will offer to bump the version automatically. Select option 1, 2, or 3 to bump.
+
+Or manually bump:
 
 ```bash
 yarn version:patch
-# or choose a different version
 ```
 
 ### Build Failed Before Publishing
@@ -355,7 +435,7 @@ Error: Build failed!
 yarn build
 
 # Fix issues, then retry
-yarn publish
+yarn publish:auto
 ```
 
 ### Tests Failed
@@ -373,7 +453,7 @@ Continue anyway? [y/N]:
 ### Package Too Large
 
 ```bash
-Warning: Package size is 15MB (max recommended: 5MB)
+Warning: Package size is larger than recommended
 ```
 
 **Solution:** Check `.npmignore` and ensure only necessary files are included
@@ -386,19 +466,19 @@ npm pack --dry-run
 du -sh dist/
 ```
 
-### Wrong Files Published
-
-If you see unexpected files in the package:
+### Git Tag Already Exists
 
 ```bash
-# Check what will be published
-npm pack --dry-run
+Error: Tag v0.1.1 already exists
+```
 
-# Review .npmignore
-cat .npmignore
+**Solution:** The release script will offer to delete and recreate the tag.
 
-# Check package.json "files" field
-cat package.json | grep -A5 '"files"'
+Or manually:
+
+```bash
+git tag -d v0.1.1
+git push origin :refs/tags/v0.1.1
 ```
 
 ## Best Practices
@@ -430,25 +510,38 @@ Document changes for users:
 - Modifications here
 ```
 
-### 3. Use Git Tags
+### 3. Separate Code and Version Commits
+
+Always keep code changes and version bumps in separate commits:
+
+```bash
+# Good:
+git commit -m "feat: add feature"     # Code changes
+yarn version:patch                    # Version bump (separate commit)
+
+# Bad:
+git add .
+git commit -m "feat: add feature and bump version"  # Mixed
+```
+
+### 4. Use Git Tags
 
 Always tag releases:
 
 ```bash
-git tag -a v1.0.1 -m "Release version 1.0.1"
-git push origin v1.0.1
+git push --tags
 ```
 
-### 4. Verify Tarball Contents
+### 5. Verify Tarball Contents
 
 Check the tarball before publishing:
 
 ```bash
 yarn pack
-tar -tzf @hanivanrizky/nestjs-xpath-parser-1.0.1.tgz | head -50
+tar -tzf @hanivanrizky-nestjs-xpath-parser-1.0.1.tgz | head -50
 ```
 
-### 5. Test Published Package
+### 6. Test Published Package
 
 After publishing, test installation:
 
@@ -457,19 +550,26 @@ After publishing, test installation:
 npm install @hanivanrizky/nestjs-xpath-parser@1.0.1
 ```
 
-## Version Scripts Reference
+### 7. Create GitHub Releases
 
-| Command              | Description                               |
-| -------------------- | ----------------------------------------- |
-| `yarn version`       | Interactive version menu                  |
-| `yarn version:patch` | Bump patch version (bug fixes)            |
-| `yarn version:minor` | Bump minor version (new features)         |
-| `yarn version:major` | Bump major version (breaking changes)     |
-| `yarn pack`          | Create tarball without publishing         |
-| `yarn publish`       | Full publish with version check           |
-| `yarn publish:dry`   | Preview publish without actual publishing |
+Use `yarn release` to create GitHub releases with proper notes extracted from CHANGELOG.md.
+
+## Quick Reference
+
+```bash
+# Development
+git add .
+git commit -m "feat: description"
+git push
+
+# Release
+yarn version:patch
+git push --tags
+yarn release
+yarn publish:auto
+```
 
 ## Related Documentation
 
 - [API Reference](./api-reference.md) - Service API documentation
-- [Development](../README.md#development) - Development setup
+- [README](../README.md) - Main project documentation
