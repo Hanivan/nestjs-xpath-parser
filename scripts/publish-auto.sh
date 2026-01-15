@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# All-in-one script to publish @hanivanrizky/nestjs-xpath-scraper to npmjs
+# All-in-one script to publish @hanivanrizky/nestjs-xpath-parser to npmjs
 # Handles login, building, testing, and publishing automatically
 # Usage: ./scripts/publish-auto.sh [--dry-run]
 

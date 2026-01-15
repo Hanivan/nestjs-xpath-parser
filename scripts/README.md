@@ -128,7 +128,7 @@ $ yarn publish:dry
 \\(^o^)/ Automated NPM Publisher
 ==========================
 
-Package: @hanivanrizky/nestjs-xpath-scraper
+Package: @hanivanrizky/nestjs-xpath-parser
 Version: 1.0.0
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -258,8 +258,8 @@ chmod +x scripts/publish-auto.sh
    - Check `publishConfig.access: "public"` for scoped packages
 
 4. **After publishing:**
-   - Visit: `https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-scraper`
-   - Test install: `npm install @hanivanrizky/nestjs-xpath-scraper`
+   - Visit: `https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser`
+   - Test install: `npm install @hanivanrizky/nestjs-xpath-parser`
 
 ## Security
 

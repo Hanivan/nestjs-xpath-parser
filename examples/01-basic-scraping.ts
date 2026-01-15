@@ -7,8 +7,12 @@
  * - Extracting single values from HTML
  */
 
-import { Module, Injectable } from '@nestjs/common';
-import { ScraperHtmlModule, ScraperHtmlService, PatternField } from '@hanivanrizky/nestjs-xpath-scraper';
+import {
+  PatternField,
+  ScraperHtmlModule,
+  ScraperHtmlService,
+} from '@hanivanrizky/nestjs-xpath-parser';
+import { Injectable, Module } from '@nestjs/common';
 
 // Define the data structure we want to extract
 interface PageInfo {

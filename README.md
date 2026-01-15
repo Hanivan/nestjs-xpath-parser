@@ -1,4 +1,4 @@
-# @hanivanrizky/nestjs-xpath-scraper
+# @hanivanrizky/nestjs-xpath-parser
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
@@ -7,9 +7,9 @@
 <p align="center">A NestJS module for HTML parsing and web scraping using XPath with support for user-agent rotation, proxy configuration, and flexible data extraction.</p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-scraper" target="_blank"><img src="https://img.shields.io/npm/v/@hanivanrizky/nestjs-xpath-scraper.svg" alt="NPM Version" /></a>
-  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-scraper" target="_blank"><img src="https://img.shields.io/npm/l/@hanivanrizky/nestjs-xpath-scraper.svg" alt="Package License" /></a>
-  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-scraper" target="_blank"><img src="https://img.shields.io/npm/dm/@hanivanrizky/nestjs-xpath-scraper.svg" alt="NPM Downloads" /></a>
+  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/v/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Version" /></a>
+  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/l/@hanivanrizky/nestjs-xpath-parser.svg" alt="Package License" /></a>
+  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/dm/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Downloads" /></a>
 </p>
 
 ## Table of Contents
@@ -50,9 +50,9 @@
 ## Installation
 
 ```bash
-yarn add @hanivanrizky/nestjs-xpath-scraper
+yarn add @hanivanrizky/nestjs-xpath-parser
 # or
-npm install @hanivanrizky/nestjs-xpath-scraper
+npm install @hanivanrizky/nestjs-xpath-parser
 ```
 
 ## Quick Start
@@ -61,7 +61,7 @@ npm install @hanivanrizky/nestjs-xpath-scraper
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-scraper';
+import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
 
 @Module({
   imports: [ScraperHtmlModule],
@@ -73,7 +73,7 @@ export class AppModule {}
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { ScraperHtmlService } from '@hanivanrizky/nestjs-xpath-scraper';
+import { ScraperHtmlService } from '@hanivanrizky/nestjs-xpath-parser';
 
 @Injectable()
 export class YourService {
@@ -119,7 +119,7 @@ export class YourService {
 Define extraction patterns with rich metadata:
 
 ```typescript
-import { PatternField } from '@hanivanrizky/nestjs-xpath-scraper';
+import { PatternField } from '@hanivanrizky/nestjs-xpath-parser';
 
 const patterns: PatternField[] = [
   {
@@ -277,7 +277,7 @@ const result = await scraperService.evaluateWebsite({
 For cleaner type definitions, you can optionally use the `BaseExtractionResult` helper type:
 
 ```typescript
-import { BaseExtractionResult } from '@hanivanrizky/nestjs-xpath-scraper';
+import { BaseExtractionResult } from '@hanivanrizky/nestjs-xpath-parser';
 
 // Option 1: Simple interface (works without extends)
 interface Product {
@@ -470,7 +470,7 @@ console.log(validation);
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { ScraperHtmlService, PatternField } from '@hanivanrizky/nestjs-xpath-scraper';
+import { ScraperHtmlService, PatternField } from '@hanivanrizky/nestjs-xpath-parser';
 
 interface Product {
   name: string;

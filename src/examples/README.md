@@ -1,6 +1,6 @@
 # Examples
 
-This directory contains practical examples demonstrating various features of the `@hanivanrizky/nestjs-xpath-scraper` package.
+This directory contains practical examples demonstrating various features of the `@hanivanrizky/nestjs-xpath-parser` package.
 
 ## Available Examples
 
@@ -147,7 +147,7 @@ import {
   demonstrateAlternativePatterns,
   demonstrateXmlParsing,
   demonstrateRealWorldEcommerce,
-} from '@hanivanrizky/nestjs-xpath-scraper/examples';
+} from '@hanivanrizky/nestjs-xpath-parser/examples';
 
 // Run a specific demo
 await demonstrateBasicProductScraping();

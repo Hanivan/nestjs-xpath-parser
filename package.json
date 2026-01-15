@@ -1,5 +1,5 @@
 {
-  "name": "@hanivanrizky/nestjs-xpath-scraper",
+  "name": "@hanivanrizky/nestjs-xpath-parser",
   "version": "1.0.0",
   "description": "A NestJS module for HTML parsing and web scraping using XPath with support for user-agent rotation, proxy configuration, and flexible data extraction",
   "author": "Hanivan Rizky",
@@ -27,12 +27,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Hanivan/nestjs-xpath-scraper.git"
+    "url": "git+https://github.com/Hanivan/nestjs-xpath-parser.git"
   },
   "bugs": {
-    "url": "https://github.com/Hanivan/nestjs-xpath-scraper/issues"
+    "url": "https://github.com/Hanivan/nestjs-xpath-parser/issues"
   },
-  "homepage": "https://github.com/Hanivan/nestjs-xpath-scraper#readme",
+  "homepage": "https://github.com/Hanivan/nestjs-xpath-parser#readme",
   "publishConfig": {
     "access": "public"
   },
