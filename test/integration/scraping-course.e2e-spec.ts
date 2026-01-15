@@ -1,7 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { ScraperHtmlService } from '@commons/commons/scraper-html';
-import { ScraperHtmlModule } from '@commons/commons/scraper-html';
+import { Test, TestingModule } from '@nestjs/testing';
+import { ScraperHtmlModule, ScraperHtmlService } from 'src';
 
 describe('ScrapingCourse.com Integration Tests (e2e)', () => {
   let app: INestApplication;
@@ -196,7 +195,7 @@ describe('ScrapingCourse.com Integration Tests (e2e)', () => {
   });
 
   describe('XPath Validation', () => {
-    it('should validate XPath patterns against scrapingcourse.com HTML', async () => {
+    it('should validate XPath patterns against scrapingcourse.com HTML', () => {
       // For this test, we'll validate some common patterns against sample HTML
       const testHtml = `
         <html>

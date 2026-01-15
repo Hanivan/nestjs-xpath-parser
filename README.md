@@ -1,98 +1,755 @@
+# @hanivanrizky/nestjs-xpath-scraper
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<p align="center">A NestJS module for HTML parsing and web scraping using XPath with support for user-agent rotation, proxy configuration, and flexible data extraction.</p>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-scraper" target="_blank"><img src="https://img.shields.io/npm/v/@hanivanrizky/nestjs-xpath-scraper.svg" alt="NPM Version" /></a>
+  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-scraper" target="_blank"><img src="https://img.shields.io/npm/l/@hanivanrizky/nestjs-xpath-scraper.svg" alt="Package License" /></a>
+  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-scraper" target="_blank"><img src="https://img.shields.io/npm/dm/@hanivanrizky/nestjs-xpath-scraper.svg" alt="NPM Downloads" /></a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## Table of Contents
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+  - [Import the Module](#import-the-module)
+  - [Inject the Service](#inject-the-service)
+- [Core Features](#core-features)
+  - [Pattern-Based Extraction](#pattern-based-extraction)
+  - [Container-Based Extraction](#container-based-extraction)
+  - [Data Cleaning with Pipes](#data-cleaning-with-pipes)
+  - [XPath Validation](#xpath-validation)
+  - [User-Agent Rotation](#user-agent-rotation)
+- [TypeScript Definitions & Types](#typescript-definitions--types)
+- [API Reference](#api-reference)
+- [Examples](#examples)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Project setup
+## Features
 
-```bash
-$ yarn install
-```
+- **(☆^O^☆) XPath-Based Parsing**: Full XPath 1.0 support using libxmljs2 and JSDOM engines
+- **(._.) Pattern-Based Extraction**: Define extraction patterns with metadata for structured scraping
+- **(>_<) Container Extraction**: Extract lists of items with nested field patterns
+- **(・_・) Data Cleaning Pipes**: Built-in transformations (trim, case conversion, replace, decode HTML)
+- **(>_<) User-Agent Rotation**: Automatic user-agent rotation for stealth scraping
+- **(o_o) XPath Validation**: Validate XPath patterns before scraping
+- **(._.) HTTP Fetching**: Built-in HTML/XML fetching with proxy support
+- **(._.) Multi-Format Support**: Parse both HTML and XML content
+- **(._.) Return Types**: Extract text content or raw HTML
+- **(>_<) Alternative Patterns**: Fallback patterns for robust extraction
+- **(☆^O^☆) TypeScript Generics**: Full generic type support for type-safe results
+- **(o_o) Fully Tested**: Comprehensive test suite with real-world examples
 
-## Compile and run the project
-
-```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Installation
 
 ```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+yarn add @hanivanrizky/nestjs-xpath-scraper
+# or
+npm install @hanivanrizky/nestjs-xpath-scraper
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Quick Start
 
-## Resources
+### Import the Module
 
-Check out a few resources that may come in handy when working with NestJS:
+```typescript
+import { Module } from '@nestjs/common';
+import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-scraper';
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+@Module({
+  imports: [ScraperHtmlModule],
+})
+export class AppModule {}
+```
 
-## Support
+### Inject the Service
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```typescript
+import { Injectable } from '@nestjs/common';
+import { ScraperHtmlService } from '@hanivanrizky/nestjs-xpath-scraper';
 
-## Stay in touch
+@Injectable()
+export class YourService {
+  constructor(private readonly scraperService: ScraperHtmlService) {}
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+  async scrapeProducts() {
+    const result = await this.scraperService.evaluateWebsite({
+      url: 'https://www.scrapingcourse.com/ecommerce/',
+      patterns: [
+        {
+          key: 'container',
+          patternType: 'xpath',
+          returnType: 'text',
+          patterns: ['//li[contains(@class, "product")]'],
+          meta: { isContainer: true },
+        },
+        {
+          key: 'name',
+          patternType: 'xpath',
+          returnType: 'text',
+          patterns: ['.//h2/text()'],
+          pipes: { trim: true },
+        },
+        {
+          key: 'price',
+          patternType: 'xpath',
+          returnType: 'text',
+          patterns: ['.//span[@class="price"]//bdi/text()'],
+          pipes: { trim: true },
+        },
+      ],
+    });
+
+    return result.results;
+  }
+}
+```
+
+## Core Features
+
+### Pattern-Based Extraction
+
+Define extraction patterns with rich metadata:
+
+```typescript
+import { PatternField } from '@hanivanrizky/nestjs-xpath-scraper';
+
+const patterns: PatternField[] = [
+  {
+    key: 'title',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//title/text()'],
+    pipes: {
+      trim: true,
+      toLowerCase: false,
+    },
+  },
+  {
+    key: 'links',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//a/@href'],
+    meta: {
+      multiple: true, // Extract array of values
+    },
+  },
+  {
+    key: 'description',
+    patternType: 'xpath',
+    returnType: 'rawHTML', // Get raw HTML instead of text
+    patterns: ['//meta[@name="description"]/@content'],
+    meta: {
+      alterPattern: ['//meta[@property="og:description"]/@content'], // Fallback patterns
+    },
+  },
+];
+```
+
+### Container-Based Extraction
+
+Extract lists of structured items by defining a container pattern:
+
+```typescript
+interface Product {
+  name: string;
+  price: string;
+  image: string;
+}
+
+const result = await scraperService.evaluateWebsite<Product>({
+  url: 'https://example.com/products',
+  patterns: [
+    // Container pattern - defines the list items
+    {
+      key: 'container',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//div[@class="product-card"]'],
+      meta: { isContainer: true },
+    },
+    // Field patterns - extracted from each container
+    {
+      key: 'name',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['.//h3[@class="product-name"]/text()'],
+      pipes: { trim: true },
+    },
+    {
+      key: 'price',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['.//span[@class="price"]/text()'],
+      pipes: {
+        trim: true,
+        replace: [
+          { from: '$', to: '' },
+          { from: ',', to: '' },
+        ],
+      },
+    },
+    {
+      key: 'image',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['.//img/@src'],
+    },
+  ],
+});
+
+// Result: { results: Product[], document: ... }
+```
+
+### Data Cleaning with Pipes
+
+Apply transformations to extracted data:
+
+```typescript
+const pattern: PatternField = {
+  key: 'cleanedText',
+  patternType: 'xpath',
+  returnType: 'text',
+  patterns: ['//div[@class="content"]/text()'],
+  pipes: {
+    trim: true, // Remove leading/trailing whitespace
+    toLowerCase: true, // Convert to lowercase
+    toUpperCase: false, // Convert to uppercase (mutually exclusive with toLowerCase)
+    decode: true, // Decode HTML entities (e.g., &amp; -> &)
+    replace: [
+      // Find and replace patterns
+      { from: '\\s+', to: ' ' }, // Replace multiple spaces with single space (supports regex)
+      { from: 'old', to: 'new' },
+    ],
+  },
+};
+```
+
+### XPath Validation
+
+Validate XPath patterns before scraping:
+
+```typescript
+const validationResult = scraperService.validateXpath(
+  html,
+  [
+    '//title/text()',
+    '//div[@class="product"]',
+    '//invalid[@xpath[syntax',
+  ]
+);
+
+console.log(validationResult);
+// {
+//   valid: false,
+//   results: [
+//     { xpath: '//title/text()', valid: true, matchCount: 1, sample: 'Page Title' },
+//     { xpath: '//div[@class="product"]', valid: true, matchCount: 10 },
+//     { xpath: '//invalid[@xpath[syntax', valid: false, error: 'XPath syntax error' }
+//   ]
+// }
+```
+
+### User-Agent Rotation
+
+Automatic user-agent rotation for each request to avoid detection:
+
+```typescript
+// User-agent is automatically rotated for each request
+const result = await scraperService.evaluateWebsite({
+  url: 'https://example.com',
+  patterns: [...],
+  // Different user-agent will be used automatically
+});
+```
+
+## TypeScript Definitions & Types
+
+### Helper Types
+
+For cleaner type definitions, you can optionally use the `BaseExtractionResult` helper type:
+
+```typescript
+import { BaseExtractionResult } from '@hanivanrizky/nestjs-xpath-scraper';
+
+// Option 1: Simple interface (works without extends)
+interface Product {
+  name: string;
+  price: string;
+}
+
+// Option 2: Using helper type (optional, but more explicit)
+interface Article extends BaseExtractionResult {
+  title: string;
+  author: string;
+  content: string;
+}
+
+// Both work the same with evaluateWebsite<T>
+const products = await scraper.evaluateWebsite<Product>({ ... });
+const articles = await scraper.evaluateWebsite<Article>({ ... });
+```
+
+### Core Service Interface
+
+```typescript
+interface ScraperHtmlService {
+  // Main scraping method
+  evaluateWebsite<T = ExtractionResult>(
+    options: EvaluateOptions,
+  ): Promise<{ results: T[]; document: unknown }>;
+
+  // Validate XPath patterns
+  validateXpath(
+    html: string,
+    xpathPatterns?: string[],
+  ): {
+    valid: boolean;
+    results: Array<{
+      xpath: string;
+      valid: boolean;
+      matchCount?: number;
+      sample?: string;
+      error?: string;
+    }>;
+  };
+}
+```
+
+### Configuration Types
+
+```typescript
+interface EvaluateOptions {
+  url?: string; // URL to fetch HTML from
+  html?: string; // Pre-fetched HTML string
+  patterns: PatternField[]; // Extraction patterns
+  useProxy?: boolean; // Enable proxy for request
+  contentType?: 'text/html' | 'text/xml'; // Content type (default: 'text/html')
+}
+
+interface PatternField {
+  key: string; // Field name in result object
+  patternType: 'xpath'; // Pattern type (currently only XPath)
+  returnType: 'text' | 'rawHTML'; // Return text content or raw HTML
+  patterns: string[]; // XPath patterns (first match wins)
+  meta?: PatternMeta; // Pattern metadata
+  pipes?: CleanerStepRules; // Data cleaning transformations
+}
+
+interface PatternMeta {
+  multiple?: boolean | string; // Extract array of values
+  multiline?: boolean; // Support multiline matching
+  alterPattern?: string[]; // Alternative/fallback patterns
+  isContainer?: boolean; // Mark as container for list extraction
+  isPage?: boolean; // Mark as page-level pattern
+}
+
+interface CleanerStepRules {
+  trim?: boolean; // Remove leading/trailing whitespace
+  toLowerCase?: boolean; // Convert to lowercase
+  toUpperCase?: boolean; // Convert to uppercase
+  replace?: CleanerRule[]; // Find and replace rules
+  decode?: boolean; // Decode HTML entities
+}
+
+interface CleanerRule {
+  from: string; // Pattern to find (supports regex)
+  to: string; // Replacement string
+}
+```
+
+## API Reference
+
+### `evaluateWebsite<T>(options: EvaluateOptions): Promise<{ results: T[]; document: unknown }>`
+
+Main method for scraping websites with pattern-based extraction.
+
+**Parameters:**
+- `options.url` - URL to fetch and parse (optional if `html` is provided)
+- `options.html` - Pre-fetched HTML string (optional if `url` is provided)
+- `options.patterns` - Array of extraction patterns
+- `options.useProxy` - Enable proxy for HTTP requests (default: false)
+- `options.contentType` - Content type: 'text/html' or 'text/xml' (default: 'text/html')
+
+**Returns:**
+- `results` - Array of extracted data objects typed as `T[]`
+- `document` - Parsed DOM document
+
+**Example:**
+
+```typescript
+interface Article {
+  title: string;
+  author: string;
+  content: string;
+}
+
+const result = await scraperService.evaluateWebsite<Article>({
+  url: 'https://example.com/article',
+  patterns: [
+    {
+      key: 'title',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//h1/text()'],
+      pipes: { trim: true },
+    },
+    {
+      key: 'author',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//meta[@name="author"]/@content'],
+    },
+    {
+      key: 'content',
+      patternType: 'xpath',
+      returnType: 'rawHTML',
+      patterns: ['//article'],
+    },
+  ],
+});
+
+// result.results is typed as Article[]
+console.log(result.results[0].title); // Type-safe access
+```
+
+### `validateXpath(html: string, xpathPatterns?: string[]): ValidationResult`
+
+Validate XPath patterns against HTML content.
+
+**Parameters:**
+- `html` - HTML string to validate against
+- `xpathPatterns` - Array of XPath patterns to validate
+
+**Returns:**
+```typescript
+{
+  valid: boolean; // Overall validation status
+  results: Array<{
+    xpath: string; // XPath pattern
+    valid: boolean; // Pattern validity
+    matchCount?: number; // Number of matches found
+    sample?: string; // Sample extracted value
+    error?: string; // Error message if invalid
+  }>;
+}
+```
+
+**Example:**
+
+```typescript
+const html = '<html><body><h1>Title</h1></body></html>';
+
+const validation = scraperService.validateXpath(html, [
+  '//h1/text()',
+  '//h2/text()',
+  '//invalid[@xpath[',
+]);
+
+console.log(validation);
+// {
+//   valid: false,
+//   results: [
+//     { xpath: '//h1/text()', valid: true, matchCount: 1, sample: 'Title' },
+//     { xpath: '//h2/text()', valid: true, matchCount: 0 },
+//     { xpath: '//invalid[@xpath[', valid: false, error: 'XPath syntax error' }
+//   ]
+// }
+```
+
+## Examples
+
+### Example 1: Simple Product Scraping
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { ScraperHtmlService, PatternField } from '@hanivanrizky/nestjs-xpath-scraper';
+
+interface Product {
+  name: string;
+  price: string;
+}
+
+@Injectable()
+export class ProductScraperService {
+  constructor(private readonly scraper: ScraperHtmlService) {}
+
+  async scrapeProducts(url: string): Promise<Product[]> {
+    const patterns: PatternField[] = [
+      {
+        key: 'container',
+        patternType: 'xpath',
+        returnType: 'text',
+        patterns: ['//div[@class="product"]'],
+        meta: { isContainer: true },
+      },
+      {
+        key: 'name',
+        patternType: 'xpath',
+        returnType: 'text',
+        patterns: ['.//h2/text()'],
+        pipes: { trim: true },
+      },
+      {
+        key: 'price',
+        patternType: 'xpath',
+        returnType: 'text',
+        patterns: ['.//span[@class="price"]/text()'],
+        pipes: {
+          trim: true,
+          replace: [{ from: '$', to: '' }],
+        },
+      },
+    ];
+
+    const result = await this.scraper.evaluateWebsite<Product>({
+      url,
+      patterns,
+    });
+
+    return result.results;
+  }
+}
+```
+
+### Example 2: Article Extraction with Fallbacks
+
+```typescript
+interface Article {
+  title: string;
+  description: string;
+  publishedDate: string;
+  tags: string[];
+}
+
+const patterns: PatternField[] = [
+  {
+    key: 'title',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//h1[@class="article-title"]/text()'],
+    meta: {
+      alterPattern: [
+        '//meta[@property="og:title"]/@content',
+        '//title/text()',
+      ],
+    },
+    pipes: { trim: true },
+  },
+  {
+    key: 'description',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//meta[@name="description"]/@content'],
+    pipes: {
+      trim: true,
+      decode: true,
+    },
+  },
+  {
+    key: 'publishedDate',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//time/@datetime'],
+  },
+  {
+    key: 'tags',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//a[@rel="tag"]/text()'],
+    meta: { multiple: true },
+  },
+];
+
+const result = await scraper.evaluateWebsite<Article>({
+  url: 'https://example.com/article',
+  patterns,
+});
+```
+
+### Example 3: XML Parsing
+
+```typescript
+const result = await scraper.evaluateWebsite({
+  url: 'https://example.com/sitemap.xml',
+  contentType: 'text/xml',
+  patterns: [
+    {
+      key: 'container',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//url'],
+      meta: { isContainer: true },
+    },
+    {
+      key: 'loc',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['.//loc/text()'],
+    },
+    {
+      key: 'lastmod',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['.//lastmod/text()'],
+    },
+  ],
+});
+```
+
+### Example 4: XPath Validation Before Scraping
+
+```typescript
+async scrapeSafely(url: string, xpathPatterns: string[]) {
+  // Fetch HTML first
+  const response = await fetch(url);
+  const html = await response.text();
+
+  // Validate XPath patterns
+  const validation = this.scraper.validateXpath(html, xpathPatterns);
+
+  if (!validation.valid) {
+    const invalidPatterns = validation.results
+      .filter(r => !r.valid)
+      .map(r => `${r.xpath}: ${r.error}`);
+
+    throw new Error(`Invalid XPath patterns: ${invalidPatterns.join(', ')}`);
+  }
+
+  // Patterns are valid, proceed with scraping
+  const result = await this.scraper.evaluateWebsite({
+    html,
+    patterns: [
+      // ... your patterns
+    ],
+  });
+
+  return result.results;
+}
+```
+
+### Example 5: Complex E-commerce Scraping
+
+```typescript
+interface ProductListing {
+  name: string;
+  price: string;
+  rating: string;
+  reviewCount: string;
+  image: string;
+  availability: string;
+}
+
+const patterns: PatternField[] = [
+  {
+    key: 'container',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['//li[contains(@class, "product")]'],
+    meta: { isContainer: true },
+  },
+  {
+    key: 'name',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['.//h2[contains(@class, "product-title")]/text()'],
+    meta: {
+      alterPattern: ['.//a[@class="product-link"]/@title'],
+    },
+    pipes: {
+      trim: true,
+      replace: [{ from: '\\s+', to: ' ' }],
+    },
+  },
+  {
+    key: 'price',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['.//span[@class="price"]//bdi/text()'],
+    pipes: {
+      trim: true,
+      replace: [
+        { from: '\\$', to: '' },
+        { from: ',', to: '' },
+      ],
+    },
+  },
+  {
+    key: 'rating',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['.//div[@class="star-rating"]/@style'],
+  },
+  {
+    key: 'reviewCount',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['.//span[@class="review-count"]/text()'],
+    pipes: {
+      trim: true,
+      replace: [{ from: '[^0-9]', to: '' }],
+    },
+  },
+  {
+    key: 'image',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['.//img/@src'],
+  },
+  {
+    key: 'availability',
+    patternType: 'xpath',
+    returnType: 'text',
+    patterns: ['.//span[contains(@class, "stock")]/text()'],
+    pipes: {
+      trim: true,
+      toLowerCase: true,
+    },
+  },
+];
+
+const result = await scraper.evaluateWebsite<ProductListing>({
+  url: 'https://www.scrapingcourse.com/ecommerce/',
+  patterns,
+});
+
+console.log(`Found ${result.results.length} products`);
+```
+
+## Development
+
+```bash
+# Install dependencies
+yarn install
+
+# Build
+yarn build
+
+# Test
+yarn test
+yarn test:cov
+yarn test:watch
+
+# Lint
+yarn lint
+yarn format
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/yourusername/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/yourusername/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

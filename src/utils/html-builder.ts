@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 import * as libxmljs from 'libxmljs2';
 import { EngineHtmlBuilder } from '../enums';
+import { HtmlNode, HtmlNodeArray } from '../types';
 
 export class HtmlBuilder {
   private engine: EngineHtmlBuilder;
@@ -11,7 +12,9 @@ export class HtmlBuilder {
     useJSDom: boolean = false,
     contentType: 'text/html' | 'text/xml' = 'text/html',
   ) {
-    this.engine = useJSDom ? EngineHtmlBuilder.JSDOM : EngineHtmlBuilder.LIBXMLJS;
+    this.engine = useJSDom
+      ? EngineHtmlBuilder.JSDOM
+      : EngineHtmlBuilder.LIBXMLJS;
 
     if (this.engine === EngineHtmlBuilder.JSDOM) {
       this.dom = new JSDOM(plainText);
@@ -31,7 +34,7 @@ export class HtmlBuilder {
     return new HtmlBuilder(plainText, useJSDom, contentType);
   }
 
-  getXpath(expression: string): libxmljs.Element | Element | null {
+  getXpath(expression: string): HtmlNode {
     if (this.engine === EngineHtmlBuilder.JSDOM) {
       const dom = this.dom as JSDOM;
       const node = dom.window.document.evaluate(
@@ -44,11 +47,11 @@ export class HtmlBuilder {
       return node as Element | null;
     } else {
       const dom = this.dom as libxmljs.Document;
-      return dom.get(expression) as libxmljs.Element | null;
+      return dom.get(expression);
     }
   }
 
-  findXpath(expression: string): (libxmljs.Element | Element)[] {
+  findXpath(expression: string): HtmlNodeArray {
     if (this.engine === EngineHtmlBuilder.JSDOM) {
       const dom = this.dom as JSDOM;
       const iterator = dom.window.document.evaluate(
@@ -67,46 +70,46 @@ export class HtmlBuilder {
       return nodes;
     } else {
       const dom = this.dom as libxmljs.Document;
-      return dom.find(expression) as libxmljs.Element[];
+      return dom.find(expression) as HtmlNodeArray;
     }
   }
 
-  getValueXML(node: libxmljs.Element | Element | null): string {
+  getValueXML(node: HtmlNode): string {
     if (!node) return '';
 
     if (this.engine === EngineHtmlBuilder.JSDOM) {
       const element = node as Element;
       return element.textContent?.trim() || '';
     } else {
-      const element = node as any;
+      const element = node as libxmljs.Node;
 
       // Check if it's a text node (has toString but not text method)
-      if (typeof element.text === 'function') {
+      if ('text' in element && typeof element.text === 'function') {
         // It's an element node
-        const text = element.text().trim();
+        const text = (element.text as () => string)().trim();
         // Normalize whitespace: replace multiple spaces with single space
         return text.replace(/\s+/g, ' ').trim();
       } else {
         // It's a text or attribute node, use toString()
-        const text = element.toString().trim();
+        const text = (element.toString as () => string)().trim();
         // Normalize whitespace: replace multiple spaces with single space
         return text.replace(/\s+/g, ' ').trim();
       }
     }
   }
 
-  value(node: libxmljs.Element | Element | null): string {
+  value(node: HtmlNode): string {
     return this.getValueXML(node);
   }
 
-  htmlString(node: libxmljs.Element | Element | null): string {
+  htmlString(node: HtmlNode): string {
     if (!node) return '';
 
     if (this.engine === EngineHtmlBuilder.JSDOM) {
       const element = node as Element;
       return element.innerHTML || '';
     } else {
-      const element = node as libxmljs.Element;
+      const element = node as libxmljs.Node;
       return element.toString();
     }
   }
@@ -129,10 +132,7 @@ export class HtmlBuilder {
   /**
    * Find nodes using XPath relative to a context node
    */
-  findXpathInContext(
-    expression: string,
-    contextNode: libxmljs.Element | Element,
-  ): (libxmljs.Element | Element)[] {
+  findXpathInContext(expression: string, contextNode: HtmlNode): HtmlNodeArray {
     if (this.engine === EngineHtmlBuilder.JSDOM) {
       const dom = this.dom as JSDOM;
       const iterator = dom.window.document.evaluate(
@@ -151,7 +151,7 @@ export class HtmlBuilder {
       return nodes;
     } else {
       const element = contextNode as libxmljs.Element;
-      return element.find(expression) as libxmljs.Element[];
+      return element.find(expression) as HtmlNodeArray;
     }
   }
 }

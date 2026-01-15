@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
@@ -47,15 +50,15 @@ describe('HtmlParser API (e2e)', () => {
         ],
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer() as unknown as string)
         .post('/html/parse')
         .send(payload)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0]).toEqual({
+      expect((response.body as { data: unknown[] }).data).toHaveLength(1);
+      expect((response.body as { data: unknown[] }).data[0]).toEqual({
         title: 'Test Title',
         content: 'Test Content',
       });
@@ -77,17 +80,25 @@ describe('HtmlParser API (e2e)', () => {
         ],
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer() as unknown as string)
         .post('/html/parse')
         .send(payload)
         .expect(201);
 
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].title).toBeDefined();
-      expect(typeof response.body.data[0].title).toBe('string');
+      expect((response.body as { success: boolean }).success).toBe(true);
+      expect((response.body as { data: unknown[] }).data).toHaveLength(1);
+      expect(
+        (response.body as { data: Array<{ title?: string }> }).data[0]?.title,
+      ).toBeDefined();
+      expect(
+        typeof (response.body as { data: Array<{ title?: string }> }).data[0]
+          ?.title,
+      ).toBe('string');
 
-      console.log('Scraped title:', response.body.data[0].title);
+      console.log(
+        'Scraped title:',
+        (response.body as { data: Array<{ title?: string }> }).data[0]?.title,
+      );
     }, 30000);
 
     it('should extract multiple products from scrapingcourse.com', async () => {
@@ -115,17 +126,24 @@ describe('HtmlParser API (e2e)', () => {
         ],
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer() as unknown as string)
         .post('/html/parse')
         .send(payload)
         .expect(201);
 
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
-      expect(response.body.count).toBeGreaterThan(0);
+      expect((response.body as { success: boolean }).success).toBe(true);
+      expect(
+        (response.body as { data: { length: number } }).data.length,
+      ).toBeGreaterThan(0);
+      expect((response.body as { count: number }).count).toBeGreaterThan(0);
 
-      console.log(`Found ${response.body.count} products`);
-      console.log('First product:', response.body.data[0]);
+      console.log(
+        `Found ${(response.body as { count: number }).count} products`,
+      );
+      console.log(
+        'First product:',
+        (response.body as { data: unknown[] }).data[0],
+      );
     }, 30000);
 
     it('should return 400 for invalid pattern type', async () => {
@@ -141,7 +159,7 @@ describe('HtmlParser API (e2e)', () => {
         ],
       };
 
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as unknown as string)
         .post('/html/parse')
         .send(payload)
         .expect(400);
@@ -164,12 +182,14 @@ describe('HtmlParser API (e2e)', () => {
         ],
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer() as unknown as string)
         .post('/html/parse')
         .send(payload)
         .expect(201);
 
-      expect(response.body.data[0].title).toBe('test title');
+      expect(
+        (response.body as { data: Array<{ title?: string }> }).data[0]?.title,
+      ).toBe('test title');
     });
   });
 
@@ -187,16 +207,20 @@ describe('HtmlParser API (e2e)', () => {
         xpathPatterns: ['//h1/text()', '//div[@class="content"]/text()'],
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer() as unknown as string)
         .post('/html/validate')
         .send(payload)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('valid', true);
-      expect(response.body.results).toHaveLength(2);
+      expect((response.body as { results: unknown[] }).results).toHaveLength(2);
 
-      response.body.results.forEach((result: any) => {
+      (
+        response.body as {
+          results: Array<{ valid: boolean; matchCount?: number }>;
+        }
+      ).results.forEach((result) => {
         expect(result.valid).toBe(true);
         expect(result).toHaveProperty('matchCount');
       });
@@ -208,15 +232,23 @@ describe('HtmlParser API (e2e)', () => {
         xpathPatterns: ['//h1/text()', '//invalid[[['],
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer() as unknown as string)
         .post('/html/validate')
         .send(payload)
         .expect(201);
 
-      expect(response.body.valid).toBe(false);
-      expect(response.body.results[0].valid).toBe(true);
-      expect(response.body.results[1].valid).toBe(false);
-      expect(response.body.results[1]).toHaveProperty('error');
+      expect((response.body as { valid: boolean }).valid).toBe(false);
+      expect(
+        (response.body as { results: Array<{ valid: boolean }> }).results[0]
+          ?.valid,
+      ).toBe(true);
+      expect(
+        (response.body as { results: Array<{ valid: boolean }> }).results[1]
+          ?.valid,
+      ).toBe(false);
+      expect(
+        (response.body as { results: Array<{ error?: string }> }).results[1],
+      ).toHaveProperty('error');
     });
 
     it('should return 400 when html is missing', async () => {
@@ -224,7 +256,7 @@ describe('HtmlParser API (e2e)', () => {
         xpathPatterns: ['//h1/text()'],
       };
 
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as unknown as string)
         .post('/html/validate')
         .send(payload)
         .expect(400);

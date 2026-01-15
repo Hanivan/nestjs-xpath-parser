@@ -4,6 +4,6 @@ export interface EvaluateOptions {
   url?: string;
   html?: string;
   patterns: PatternField[];
-  useProxy?: boolean;
+  useProxy?: boolean | string;
   contentType?: 'text/html' | 'text/xml';
 }

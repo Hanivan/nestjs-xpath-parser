@@ -1,67 +1,99 @@
 {
-  "name": "html-parser-nest",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "name": "@hanivanrizky/nestjs-xpath-scraper",
+  "version": "1.0.0",
+  "description": "A NestJS module for HTML parsing and web scraping using XPath with support for user-agent rotation, proxy configuration, and flexible data extraction",
+  "author": "Hanivan Rizky",
+  "private": false,
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "!dist/*.tsbuildinfo"
+  ],
+  "keywords": [
+    "nestjs",
+    "html",
+    "parser",
+    "xpath",
+    "web-scraping",
+    "scraper",
+    "extraction",
+    "libxmljs2",
+    "user-agent",
+    "proxy",
+    "xml",
+    "html-parser"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hanivan/nestjs-xpath-scraper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hanivan/nestjs-xpath-scraper/issues"
+  },
+  "homepage": "https://github.com/Hanivan/nestjs-xpath-scraper#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:examples": "./scripts/run-examples.sh",
+    "prepublishOnly": "yarn build",
+    "publish": "./scripts/publish-auto.sh",
+    "publish:dry": "./scripts/publish-auto.sh --dry-run",
+    "prepare": "husky"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0",
+    "reflect-metadata": "^0.1.13 || ^0.2.0",
+    "rxjs": "^7.0.0"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/mapped-types": "*",
-    "@nestjs/platform-express": "^11.0.1",
     "axios": "^1.13.2",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.3",
     "decode-html": "^2.0.0",
+    "https-proxy-agent": "^7.0.6",
     "jsdom": "^27.4.0",
     "libxmljs2": "^0.37.0",
-    "parse5": "^8.0.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
     "user-agents": "^1.1.669"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.18.0",
-    "@nestjs/cli": "^11.0.0",
-    "@nestjs/schematics": "^11.0.0",
-    "@nestjs/testing": "^11.0.1",
-    "@types/express": "^5.0.0",
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.2",
+    "@nestjs/cli": "^11.0.14",
+    "@nestjs/common": "^11.1.11",
+    "@nestjs/core": "^11.1.11",
+    "@nestjs/schematics": "^11.0.9",
+    "@nestjs/testing": "^11.1.11",
     "@types/jest": "^30.0.0",
     "@types/jsdom": "^27.0.0",
-    "@types/node": "^22.10.7",
-    "@types/supertest": "^6.0.2",
+    "@types/node": "^25.0.8",
     "@types/user-agents": "^1.0.4",
-    "eslint": "^9.18.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.2",
-    "globals": "^16.0.0",
-    "jest": "^30.0.0",
-    "prettier": "^3.4.2",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^17.0.0",
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "prettier": "^3.7.4",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
     "source-map-support": "^0.5.21",
-    "supertest": "^7.0.0",
-    "ts-jest": "^29.2.5",
-    "ts-loader": "^9.5.2",
+    "ts-jest": "^29.4.6",
+    "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.53.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -69,7 +101,7 @@
       "json",
       "ts"
     ],
-    "rootDir": ".",
+    "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -80,14 +112,7 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "./coverage",
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/src/",
-      "<rootDir>/libs/"
-    ],
-    "moduleNameMapper": {
-      "^@commons/commons(|/.*)$": "<rootDir>/libs/commons/src/$1"
-    }
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   }
 }

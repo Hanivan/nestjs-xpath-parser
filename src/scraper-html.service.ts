@@ -1,25 +1,37 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import decodeHtml = require('decode-html');
-import * as libxmljs from 'libxmljs2';
+import { firstValueFrom, retry, timer, catchError, throwError } from 'rxjs';
+import { AxiosError } from 'axios';
+import decodeHtml from 'decode-html';
 import UserAgent from 'user-agents';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import { HtmlBuilder } from './utils';
-import { PatternField, EvaluateOptions } from './types';
-
-type HtmlNode = libxmljs.Element | Element | null;
+import {
+  HtmlNode,
+  PatternField,
+  EvaluateOptions,
+  ExtractionResult,
+} from './types';
 
 @Injectable()
 export class ScraperHtmlService {
   private readonly logger = new Logger(ScraperHtmlService.name);
   private readonly userAgentGenerator: UserAgent;
+  private readonly maxRetries: number;
 
-  constructor(private readonly httpService: HttpService) {
+  constructor(
+    private readonly httpService: HttpService,
+    @Inject('SCRAPER_HTML_OPTIONS')
+    @Optional()
+    options?: { maxRetries?: number },
+  ) {
     // Initialize user agent generator for rotation
     this.userAgentGenerator = new UserAgent();
+    // Set max retries from options or default to 3
+    this.maxRetries = options?.maxRetries ?? 3;
   }
 
-  async evaluateWebsite<T extends Record<string, unknown>>(
+  async evaluateWebsite<T = ExtractionResult>(
     options: EvaluateOptions,
   ): Promise<{ results: T[]; document: unknown }> {
     let html = options.html;
@@ -90,7 +102,7 @@ export class ScraperHtmlService {
           results.results.push({
             xpath,
             valid: false,
-            error: error.message,
+            error: error instanceof Error ? error.message : String(error),
           });
         }
       });
@@ -99,7 +111,7 @@ export class ScraperHtmlService {
     return results;
   }
 
-  private extractData<T extends Record<string, unknown>>(
+  private extractData<T = ExtractionResult>(
     patterns: PatternField[],
     dom: HtmlBuilder,
   ): T[] {
@@ -272,25 +284,70 @@ export class ScraperHtmlService {
     return result;
   }
 
-  private async fetchHtml(url: string, _useProxy?: boolean): Promise<string> {
-    try {
-      // Generate a random user agent for each request
-      const userAgent = this.userAgentGenerator.random().toString();
+  private async fetchHtml(
+    url: string,
+    useProxy?: boolean | string,
+  ): Promise<string> {
+    // Generate a random user agent for each request
+    const userAgent = this.userAgentGenerator.random().toString();
 
-      this.logger.debug(`Fetching ${url} with User-Agent: ${userAgent}`);
+    this.logger.debug(`Fetching ${url} with User-Agent: ${userAgent}`);
 
-      const response = await firstValueFrom(
-        this.httpService.get(url, {
-          headers: {
-            'User-Agent': userAgent,
+    const config: Record<string, unknown> = {
+      headers: {
+        'User-Agent': userAgent,
+      },
+    };
+
+    // Configure proxy if specified
+    if (useProxy) {
+      const proxyUrl =
+        typeof useProxy === 'string'
+          ? useProxy
+          : process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
+      if (proxyUrl) {
+        this.logger.debug(`Using proxy: ${proxyUrl}`);
+        config.httpAgent = new HttpsProxyAgent(proxyUrl);
+        config.httpsAgent = new HttpsProxyAgent(proxyUrl);
+      }
+    }
+
+    const response = await firstValueFrom(
+      this.httpService.get(url, config).pipe(
+        retry({
+          count: this.maxRetries,
+          delay: (error, retryIndex) => {
+            const axiosError = error as AxiosError;
+            const isRetryable =
+              !axiosError.response ||
+              axiosError.response.status >= 500 ||
+              axiosError.code === 'ECONNRESET';
+
+            if (!isRetryable) {
+              this.logger.error(
+                `Non-retryable error fetching ${url}: ${axiosError.message}`,
+              );
+              throw error;
+            }
+
+            const delayMs = Math.min(1000 * Math.pow(2, retryIndex - 1), 10000); // Exponential backoff, max 10s
+            this.logger.warn(
+              `Retry ${retryIndex}/${this.maxRetries} for ${url} after ${delayMs}ms (error: ${axiosError.message})`,
+            );
+
+            return timer(delayMs);
           },
         }),
-      );
+        catchError((error: Error) => {
+          this.logger.error(
+            `Failed to fetch URL after ${this.maxRetries} retries: ${url}`,
+            error,
+          );
+          return throwError(() => error);
+        }),
+      ),
+    );
 
-      return response.data;
-    } catch (error) {
-      this.logger.error(`Failed to fetch URL: ${url}`, error);
-      throw new Error(`Failed to fetch HTML from ${url}`);
-    }
+    return response.data as string;
   }
 }

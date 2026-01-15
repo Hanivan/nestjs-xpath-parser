@@ -1,0 +1,53 @@
+# Source files
+src/
+libs/
+*.ts
+!*.d.ts
+
+# Tests
+test/
+coverage/
+*.spec.ts
+*.test.ts
+jest.config.js
+jest-e2e.json
+
+# Build tools
+tsconfig.json
+tsconfig.build.json
+tsconfig.lib.json
+nest-cli.json
+.prettierrc
+eslint.config.mjs
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# NPM
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn.lock
+package-lock.json
+
+# Examples and docs (keep README)
+examples/
+.github/
+
+# Misc
+.env
+.env.*
+*.log

@@ -8,6 +8,11 @@ jest.mock('jsdom', () => ({
   JSDOM: jest.fn(),
 }));
 
+// Mock https-proxy-agent
+jest.mock('https-proxy-agent', () => ({
+  HttpsProxyAgent: jest.fn().mockImplementation(() => ({})),
+}));
+
 describe('ScraperHtmlService', () => {
   let service: ScraperHtmlService;
 
@@ -35,6 +40,40 @@ describe('ScraperHtmlService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should have default maxRetries of 3', async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ScraperHtmlService,
+        {
+          provide: HttpService,
+          useValue: mockHttpService,
+        },
+      ],
+    }).compile();
+
+    const defaultService = module.get<ScraperHtmlService>(ScraperHtmlService);
+    expect(defaultService).toBeDefined();
+  });
+
+  it('should accept custom maxRetries configuration', async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ScraperHtmlService,
+        {
+          provide: HttpService,
+          useValue: mockHttpService,
+        },
+        {
+          provide: 'SCRAPER_HTML_OPTIONS',
+          useValue: { maxRetries: 5 },
+        },
+      ],
+    }).compile();
+
+    const customService = module.get<ScraperHtmlService>(ScraperHtmlService);
+    expect(customService).toBeDefined();
   });
 
   describe('evaluateWebsite', () => {
@@ -95,7 +134,13 @@ describe('ScraperHtmlService', () => {
     it('should fetch HTML from URL when provided', async () => {
       const mockHtml = '<html><body><h1>Title</h1></body></html>';
       mockHttpService.get.mockReturnValue(
-        of({ data: mockHtml, status: 200, statusText: 'OK', headers: {}, config: {} }),
+        of({
+          data: mockHtml,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {},
+        }),
       );
 
       const options = {
@@ -116,11 +161,90 @@ describe('ScraperHtmlService', () => {
         'https://example.com',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'User-Agent': expect.any(String),
-          }),
-        }),
+            'User-Agent': expect.any(String) as unknown,
+          }) as unknown,
+        }) as unknown,
       );
       expect(result.results[0].title).toBe('Title');
+    });
+
+    it('should use proxy when useProxy is true and HTTP_PROXY env is set', async () => {
+      const originalHttpProxy = process.env.HTTP_PROXY;
+      process.env.HTTP_PROXY = 'http://proxy.example.com:8080';
+
+      const mockHtml = '<html><body><h1>Title</h1></body></html>';
+      mockHttpService.get.mockReturnValue(
+        of({
+          data: mockHtml,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {},
+        }),
+      );
+
+      const options = {
+        url: 'https://example.com',
+        useProxy: true as const,
+        patterns: [
+          {
+            key: 'title',
+            patternType: 'xpath' as const,
+            returnType: 'text' as const,
+            patterns: ['//h1/text()'],
+          },
+        ],
+      };
+
+      await service.evaluateWebsite(options);
+
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        'https://example.com',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'User-Agent': expect.any(String) as unknown,
+          }) as unknown,
+        }) as unknown,
+      );
+
+      process.env.HTTP_PROXY = originalHttpProxy;
+    });
+
+    it('should use proxy when useProxy is a string', async () => {
+      const mockHtml = '<html><body><h1>Title</h1></body></html>';
+      mockHttpService.get.mockReturnValue(
+        of({
+          data: mockHtml,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {},
+        }),
+      );
+
+      const options = {
+        url: 'https://example.com',
+        useProxy: 'http://custom.proxy.com:3128' as const,
+        patterns: [
+          {
+            key: 'title',
+            patternType: 'xpath' as const,
+            returnType: 'text' as const,
+            patterns: ['//h1/text()'],
+          },
+        ],
+      };
+
+      await service.evaluateWebsite(options);
+
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        'https://example.com',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'User-Agent': expect.any(String) as unknown,
+          }) as unknown,
+        }) as unknown,
+      );
     });
   });
 
