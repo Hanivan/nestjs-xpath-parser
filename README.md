@@ -1,7 +1,7 @@
 # @hanivanrizky/nestjs-xpath-parser
 
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <a href="http://nestjs.com/" target="_blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
 <p align="center">A NestJS module for HTML parsing and web scraping using XPath with support for user-agent rotation, proxy configuration, and flexible data extraction.</p>
@@ -17,18 +17,8 @@
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-  - [Import the Module](#import-the-module)
-  - [Inject the Service](#inject-the-service)
-- [Core Features](#core-features)
-  - [Pattern-Based Extraction](#pattern-based-extraction)
-  - [Container-Based Extraction](#container-based-extraction)
-  - [Data Cleaning with Pipes](#data-cleaning-with-pipes)
-  - [XPath Validation](#xpath-validation)
-  - [URL Health Check](#url-health-check)
-  - [User-Agent Rotation](#user-agent-rotation)
-- [TypeScript Definitions & Types](#typescript-definitions--types)
-- [API Reference](#api-reference)
-- [Examples](#examples)
+- [Documentation](#documentation)
+- [Quick Examples](#quick-examples)
 - [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
@@ -36,17 +26,17 @@
 ## Features
 
 - **(☆^O^☆) XPath-Based Parsing**: Full XPath 1.0 support using libxmljs2 and JSDOM engines
-- **(._.) Pattern-Based Extraction**: Define extraction patterns with metadata for structured scraping
-- **(>_<) Container Extraction**: Extract lists of items with nested field patterns
-- **(・_・) Data Cleaning Pipes**: Built-in transformations (trim, case conversion, replace, decode HTML)
-- **(>_<) User-Agent Rotation**: Automatic user-agent rotation for stealth scraping
+- **(.\_.) Pattern-Based Extraction**: Define extraction patterns with metadata for structured scraping
+- **(>\_<) Container Extraction**: Extract lists of items with nested field patterns
+- **(・\_・) Data Cleaning Pipes**: Built-in transformations (trim, case conversion, replace, decode HTML)
+- **(>\_<) User-Agent Rotation**: Automatic user-agent rotation for stealth scraping
 - **(o_o) XPath Validation**: Validate XPath patterns before scraping
-- **(._.) URL Health Check**: Check if URLs are alive using HTTP HEAD requests
-- **(._.) HTTP Fetching**: Built-in HTML/XML fetching with proxy support
+- **(.\_.) URL Health Check**: Check if URLs are alive using HTTP HEAD requests
+- **(.\_.) HTTP Fetching**: Built-in HTML/XML fetching with proxy support
 - **(☆^O^☆) HTTP Retry**: Automatic retry with exponential backoff (default: 3 retries, configurable)
-- **(._.) Multi-Format Support**: Parse both HTML and XML content
-- **(._.) Return Types**: Extract text content or raw HTML
-- **(>_<) Alternative Patterns**: Fallback patterns for robust extraction
+- **(.\_.) Multi-Format Support**: Parse both HTML and XML content
+- **(.\_.) Return Types**: Extract text content or raw HTML
+- **(>\_<) Alternative Patterns**: Fallback patterns for robust extraction
 - **(☆^O^☆) TypeScript Generics**: Full generic type support for type-safe results
 - **(o_o) Fully Tested**: Comprehensive test suite with real-world examples
 
@@ -63,6 +53,7 @@ npm install @hanivanrizky/nestjs-xpath-parser
 ### Import the Module
 
 **Basic usage (with defaults):**
+
 ```typescript
 import { Module } from '@nestjs/common';
 import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
@@ -74,6 +65,7 @@ export class AppModule {}
 ```
 
 **With custom retry configuration:**
+
 ```typescript
 import { Module } from '@nestjs/common';
 import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
@@ -89,12 +81,15 @@ export class AppModule {}
 ```
 
 **Async configuration:**
+
 ```typescript
 import { Module } from '@nestjs/common';
 import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     ScraperHtmlModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -150,75 +145,50 @@ export class YourService {
 }
 ```
 
-## Core Features
+## Documentation
 
-### Pattern-Based Extraction
+### Features
 
-Define extraction patterns with rich metadata:
+- [Pattern-Based Extraction](docs/features/pattern-based-extraction.md) - Define extraction patterns with rich metadata
+- [Container-Based Extraction](docs/features/container-extraction.md) - Extract lists of structured items
+- [Data Cleaning Pipes](docs/features/data-cleaning-pipes.md) - Transform extracted data with pipes
+- [XPath Validation](docs/features/xpath-validation.md) - Validate patterns before scraping
+- [URL Health Check](docs/features/url-health-check.md) - Check if URLs are alive
+- [User-Agent Rotation](docs/features/user-agent-rotation.md) - Automatic user-agent rotation
+- [HTTP Retry & Proxy](docs/features/retry-proxy.md) - Configure retry and proxy settings
 
-```typescript
-import { PatternField } from '@hanivanrizky/nestjs-xpath-parser';
+### Reference
 
-const patterns: PatternField[] = [
-  {
-    key: 'title',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//title/text()'],
-    pipes: {
-      trim: true,
-      toLowerCase: false,
-    },
-  },
-  {
-    key: 'links',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//a/@href'],
-    meta: {
-      multiple: true, // Extract array of values
-    },
-  },
-  {
-    key: 'description',
-    patternType: 'xpath',
-    returnType: 'rawHTML', // Get raw HTML instead of text
-    patterns: ['//meta[@name="description"]/@content'],
-    meta: {
-      alterPattern: ['//meta[@property="og:description"]/@content'], // Fallback patterns
-    },
-  },
-];
-```
+- [API Reference](docs/api-reference.md) - Complete service API documentation
+- [Type Definitions](docs/types.md) - TypeScript types and interfaces
+- [Versioning Guide](docs/versioning.md) - Version management and publishing
+- [Examples](src/examples/README.md) - Practical code examples
 
-### Container-Based Extraction
+## Quick Examples
 
-Extract lists of structured items by defining a container pattern:
+### Simple Product Scraping
 
 ```typescript
 interface Product {
   name: string;
   price: string;
-  image: string;
 }
 
 const result = await scraperService.evaluateWebsite<Product>({
   url: 'https://example.com/products',
   patterns: [
-    // Container pattern - defines the list items
     {
       key: 'container',
       patternType: 'xpath',
       returnType: 'text',
-      patterns: ['//div[@class="product-card"]'],
+      patterns: ['//div[@class="product"]'],
       meta: { isContainer: true },
     },
-    // Field patterns - extracted from each container
     {
       key: 'name',
       patternType: 'xpath',
       returnType: 'text',
-      patterns: ['.//h3[@class="product-name"]/text()'],
+      patterns: ['.//h2/text()'],
       pipes: { trim: true },
     },
     {
@@ -228,573 +198,44 @@ const result = await scraperService.evaluateWebsite<Product>({
       patterns: ['.//span[@class="price"]/text()'],
       pipes: {
         trim: true,
-        replace: [
-          { from: '$', to: '' },
-          { from: ',', to: '' },
-        ],
+        replace: [{ from: '$', to: '' }],
       },
     },
-    {
-      key: 'image',
-      patternType: 'xpath',
-      returnType: 'text',
-      patterns: ['.//img/@src'],
-    },
   ],
 });
-
-// Result: { results: Product[], document: ... }
 ```
 
-### Data Cleaning with Pipes
-
-Apply transformations to extracted data:
-
-```typescript
-const pattern: PatternField = {
-  key: 'cleanedText',
-  patternType: 'xpath',
-  returnType: 'text',
-  patterns: ['//div[@class="content"]/text()'],
-  pipes: {
-    trim: true, // Remove leading/trailing whitespace
-    toLowerCase: true, // Convert to lowercase
-    toUpperCase: false, // Convert to uppercase (mutually exclusive with toLowerCase)
-    decode: true, // Decode HTML entities (e.g., &amp; -> &)
-    replace: [
-      // Find and replace patterns
-      { from: '\\s+', to: ' ' }, // Replace multiple spaces with single space (supports regex)
-      { from: 'old', to: 'new' },
-    ],
-  },
-};
-```
-
-### XPath Validation
-
-Validate XPath patterns before scraping:
-
-```typescript
-const validationResult = scraperService.validateXpath(
-  html,
-  [
-    '//title/text()',
-    '//div[@class="product"]',
-    '//invalid[@xpath[syntax',
-  ]
-);
-
-console.log(validationResult);
-// {
-//   valid: false,
-//   results: [
-//     { xpath: '//title/text()', valid: true, matchCount: 1, sample: 'Page Title' },
-//     { xpath: '//div[@class="product"]', valid: true, matchCount: 10 },
-//     { xpath: '//invalid[@xpath[syntax', valid: false, error: 'XPath syntax error' }
-//   ]
-// }
-```
-
-### URL Health Check
-
-Check if URLs are alive using HTTP HEAD requests:
-
-**Single URL check:**
-```typescript
-const result = await scraperService.checkUrlAlive('https://example.com');
-
-console.log(result);
-// [{
-//   url: 'https://example.com',
-//   alive: true,
-//   statusCode: 200,
-// }]
-```
-
-**Multiple URLs check:**
-```typescript
-const results = await scraperService.checkUrlAlive([
-  'https://example.com',
-  'https://example.org/product/123',
-  'https://broken-link.com/page',
-]);
-
-results.forEach(result => {
-  if (!result.alive) {
-    console.log(`Dead URL: ${result.url} - Status: ${result.statusCode}, Error: ${result.error}`);
-  } else {
-    console.log(`Alive: ${result.url} (${result.statusCode})`);
-  }
-});
-```
-
-**Check URLs with feedback on extracted data:**
-```typescript
-// First scrape to get URLs
-const scrapedData = await scraperService.evaluateWebsite({
-  url: 'https://example.com/articles',
-  patterns: [
-    {
-      key: 'title',
-      patternType: 'xpath',
-      returnType: 'text',
-      patterns: ['//h2[@class="title"]/text()'],
-    },
-    {
-      key: 'link',
-      patternType: 'xpath',
-      returnType: 'text',
-      patterns: ['//a[@class="article-link"]/@href'],
-    },
-  ],
-});
-
-// Extract all URLs
-const urls = scrapedData.results.map(item => item.link as string);
-
-// Check which URLs are alive
-const healthResults = await scraperService.checkUrlAlive(urls);
-
-// Combine data with health status
-const enrichedData = scrapedData.results.map((item, index) => ({
-  ...item,
-  linkHealth: healthResults[index],
-}));
-
-// Filter out dead links
-const aliveItems = enrichedData.filter(item => item.linkHealth.alive);
-const deadItems = enrichedData.filter(item => !item.linkHealth.alive);
-
-console.log(`Found ${aliveItems.length} valid articles`);
-console.log(`Found ${deadItems.length} dead links:`, deadItems.map(d => d.link));
-```
-
-**With proxy support:**
-```typescript
-const results = await scraperService.checkUrlAlive(
-  ['https://example.com', 'https://example.org'],
-  { useProxy: true } // Uses HTTP_PROXY or HTTPS_PROXY env var
-);
-```
-
-### User-Agent Rotation
-
-Automatic user-agent rotation for each request to avoid detection:
-
-```typescript
-// User-agent is automatically rotated for each request
-const result = await scraperService.evaluateWebsite({
-  url: 'https://example.com',
-  patterns: [...],
-  // Different user-agent will be used automatically
-});
-```
-
-### HTTP Retry & Proxy Configuration
-
-**Automatic Retry with Exponential Backoff:**
-
-The service automatically retries failed HTTP requests with exponential backoff:
+### Article Extraction with Fallbacks
 
 ```typescript
 const result = await scraperService.evaluateWebsite({
-  url: 'https://example.com',
-  patterns: [...],
-  // Automatically retries on 500+ errors or connection resets
-  // Retry count is configurable via ScraperHtmlModule.forRoot({ maxRetries: 5 })
-});
-```
-
-**Proxy Configuration:**
-
-Use a proxy for HTTP requests:
-
-```typescript
-// Option 1: Use environment variables
-const result = await scraperService.evaluateWebsite({
-  url: 'https://example.com',
-  useProxy: true, // Uses HTTP_PROXY or HTTPS_PROXY env var
-  patterns: [...],
-});
-
-// Option 2: Specify proxy URL directly
-const result = await scraperService.evaluateWebsite({
-  url: 'https://example.com',
-  useProxy: 'http://proxy.example.com:8080',
-  patterns: [...],
-});
-```
-
-## TypeScript Definitions & Types
-
-### Helper Types
-
-For cleaner type definitions, you can optionally use the `BaseExtractionResult` helper type:
-
-```typescript
-import { BaseExtractionResult } from '@hanivanrizky/nestjs-xpath-parser';
-
-// Option 1: Simple interface (works without extends)
-interface Product {
-  name: string;
-  price: string;
-}
-
-// Option 2: Using helper type (optional, but more explicit)
-interface Article extends BaseExtractionResult {
-  title: string;
-  author: string;
-  content: string;
-}
-
-// Both work the same with evaluateWebsite<T>
-const products = await scraper.evaluateWebsite<Product>({ ... });
-const articles = await scraper.evaluateWebsite<Article>({ ... });
-```
-
-### Core Service Interface
-
-```typescript
-interface ScraperHtmlService {
-  // Main scraping method
-  evaluateWebsite<T = ExtractionResult>(
-    options: EvaluateOptions,
-  ): Promise<{ results: T[]; document: unknown }>;
-
-  // Validate XPath patterns
-  validateXpath(
-    html: string,
-    xpathPatterns?: string[],
-  ): {
-    valid: boolean;
-    results: Array<{
-      xpath: string;
-      valid: boolean;
-      matchCount?: number;
-      sample?: string;
-      error?: string;
-    }>;
-  };
-}
-```
-
-### Configuration Types
-
-```typescript
-interface EvaluateOptions {
-  url?: string; // URL to fetch HTML from
-  html?: string; // Pre-fetched HTML string
-  patterns: PatternField[]; // Extraction patterns
-  useProxy?: boolean | string; // Enable proxy (true uses env vars, string uses specific proxy URL)
-  contentType?: 'text/html' | 'text/xml'; // Content type (default: 'text/html')
-}
-
-// Module configuration options
-interface ScraperHtmlModuleOptions {
-  maxRetries?: number; // Maximum number of HTTP retries (default: 3)
-}
-
-interface PatternField {
-  key: string; // Field name in result object
-  patternType: 'xpath'; // Pattern type (currently only XPath)
-  returnType: 'text' | 'rawHTML'; // Return text content or raw HTML
-  patterns: string[]; // XPath patterns (first match wins)
-  meta?: PatternMeta; // Pattern metadata
-  pipes?: CleanerStepRules; // Data cleaning transformations
-}
-
-interface PatternMeta {
-  multiple?: boolean | string; // Extract array of values
-  multiline?: boolean; // Support multiline matching
-  alterPattern?: string[]; // Alternative/fallback patterns
-  isContainer?: boolean; // Mark as container for list extraction
-  isPage?: boolean; // Mark as page-level pattern
-}
-
-interface CleanerStepRules {
-  trim?: boolean; // Remove leading/trailing whitespace
-  toLowerCase?: boolean; // Convert to lowercase
-  toUpperCase?: boolean; // Convert to uppercase
-  replace?: CleanerRule[]; // Find and replace rules
-  decode?: boolean; // Decode HTML entities
-}
-
-interface CleanerRule {
-  from: string; // Pattern to find (supports regex)
-  to: string; // Replacement string
-}
-```
-
-## API Reference
-
-### `evaluateWebsite<T>(options: EvaluateOptions): Promise<{ results: T[]; document: unknown }>`
-
-Main method for scraping websites with pattern-based extraction.
-
-**Parameters:**
-- `options.url` - URL to fetch and parse (optional if `html` is provided)
-- `options.html` - Pre-fetched HTML string (optional if `url` is provided)
-- `options.patterns` - Array of extraction patterns
-- `options.useProxy` - Enable proxy: `true` uses HTTP_PROXY/HTTPS_PROXY env vars, or specify proxy URL as string
-- `options.contentType` - Content type: 'text/html' or 'text/xml' (default: 'text/html')
-
-**Returns:**
-- `results` - Array of extracted data objects typed as `T[]`
-- `document` - Parsed DOM document
-
-**Example:**
-
-```typescript
-interface Article {
-  title: string;
-  author: string;
-  content: string;
-}
-
-const result = await scraperService.evaluateWebsite<Article>({
   url: 'https://example.com/article',
   patterns: [
     {
       key: 'title',
       patternType: 'xpath',
       returnType: 'text',
-      patterns: ['//h1/text()'],
+      patterns: ['//meta[@property="og:title"]/@content'],
+      meta: {
+        alterPattern: ['//h1/text()', '//title/text()'],
+      },
       pipes: { trim: true },
     },
     {
-      key: 'author',
+      key: 'description',
       patternType: 'xpath',
       returnType: 'text',
-      patterns: ['//meta[@name="author"]/@content'],
-    },
-    {
-      key: 'content',
-      patternType: 'xpath',
-      returnType: 'rawHTML',
-      patterns: ['//article'],
+      patterns: ['//meta[@name="description"]/@content'],
+      pipes: { trim: true, decode: true },
     },
   ],
 });
-
-// result.results is typed as Article[]
-console.log(result.results[0].title); // Type-safe access
 ```
 
-### `validateXpath(html: string, xpathPatterns?: string[]): ValidationResult`
-
-Validate XPath patterns against HTML content.
-
-**Parameters:**
-- `html` - HTML string to validate against
-- `xpathPatterns` - Array of XPath patterns to validate
-
-**Returns:**
-```typescript
-{
-  valid: boolean; // Overall validation status
-  results: Array<{
-    xpath: string; // XPath pattern
-    valid: boolean; // Pattern validity
-    matchCount?: number; // Number of matches found
-    sample?: string; // Sample extracted value
-    error?: string; // Error message if invalid
-  }>;
-}
-```
-
-**Example:**
+### XML Parsing
 
 ```typescript
-const html = '<html><body><h1>Title</h1></body></html>';
-
-const validation = scraperService.validateXpath(html, [
-  '//h1/text()',
-  '//h2/text()',
-  '//invalid[@xpath[',
-]);
-
-console.log(validation);
-// {
-//   valid: false,
-//   results: [
-//     { xpath: '//h1/text()', valid: true, matchCount: 1, sample: 'Title' },
-//     { xpath: '//h2/text()', valid: true, matchCount: 0 },
-//     { xpath: '//invalid[@xpath[', valid: false, error: 'XPath syntax error' }
-//   ]
-// }
-```
-
-### `checkUrlAlive(urls: string | string[], options?: { useProxy?: boolean | string }): Promise<UrlHealthCheckResult[]>`
-
-Check if URLs are alive using HTTP HEAD requests.
-
-**Parameters:**
-- `urls` - Single URL string or array of URLs to check
-- `options.useProxy` - Enable proxy: `true` uses HTTP_PROXY/HTTPS_PROXY env vars, or specify proxy URL as string
-
-**Returns:**
-```typescript
-Array<{
-  url: string; // The checked URL
-  alive: boolean; // True if URL is alive (200-399 status code)
-  statusCode?: number; // HTTP status code (if request succeeded)
-  error?: string; // Error message (if request failed)
-}>
-```
-
-**Example:**
-
-```typescript
-// Check single URL
-const result = await scraperService.checkUrlAlive('https://example.com');
-if (result[0].alive) {
-  console.log(`${result[0].url} is alive (${result[0].statusCode})`);
-} else {
-  console.log(`${result[0].url} is dead: ${result[0].error}`);
-}
-
-// Check multiple URLs
-const urls = ['https://example.com', 'https://broken-link.com'];
-const healthResults = await scraperService.checkUrlAlive(urls);
-
-// Filter dead URLs
-const deadUrls = healthResults.filter(r => !r.alive);
-if (deadUrls.length > 0) {
-  console.warn(`Found ${deadUrls.length} dead URLs:`, deadUrls);
-}
-
-// Check extracted URLs for validity
-const scrapedData = await scraperService.evaluateWebsite({
-  url: 'https://example.com',
-  patterns: [{
-    key: 'link',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//a/@href'],
-  }],
-});
-
-const urls = scrapedData.results.map(r => r.link as string);
-const healthResults = await scraperService.checkUrlAlive(urls);
-
-const validData = scrapedData.results.filter((_, i) => healthResults[i].alive);
-console.log(`Found ${validData.length} valid links out of ${urls.length}`);
-```
-
-## Examples
-
-### Example 1: Simple Product Scraping
-
-```typescript
-import { Injectable } from '@nestjs/common';
-import { ScraperHtmlService, PatternField } from '@hanivanrizky/nestjs-xpath-parser';
-
-interface Product {
-  name: string;
-  price: string;
-}
-
-@Injectable()
-export class ProductScraperService {
-  constructor(private readonly scraper: ScraperHtmlService) {}
-
-  async scrapeProducts(url: string): Promise<Product[]> {
-    const patterns: PatternField[] = [
-      {
-        key: 'container',
-        patternType: 'xpath',
-        returnType: 'text',
-        patterns: ['//div[@class="product"]'],
-        meta: { isContainer: true },
-      },
-      {
-        key: 'name',
-        patternType: 'xpath',
-        returnType: 'text',
-        patterns: ['.//h2/text()'],
-        pipes: { trim: true },
-      },
-      {
-        key: 'price',
-        patternType: 'xpath',
-        returnType: 'text',
-        patterns: ['.//span[@class="price"]/text()'],
-        pipes: {
-          trim: true,
-          replace: [{ from: '$', to: '' }],
-        },
-      },
-    ];
-
-    const result = await this.scraper.evaluateWebsite<Product>({
-      url,
-      patterns,
-    });
-
-    return result.results;
-  }
-}
-```
-
-### Example 2: Article Extraction with Fallbacks
-
-```typescript
-interface Article {
-  title: string;
-  description: string;
-  publishedDate: string;
-  tags: string[];
-}
-
-const patterns: PatternField[] = [
-  {
-    key: 'title',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//h1[@class="article-title"]/text()'],
-    meta: {
-      alterPattern: [
-        '//meta[@property="og:title"]/@content',
-        '//title/text()',
-      ],
-    },
-    pipes: { trim: true },
-  },
-  {
-    key: 'description',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//meta[@name="description"]/@content'],
-    pipes: {
-      trim: true,
-      decode: true,
-    },
-  },
-  {
-    key: 'publishedDate',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//time/@datetime'],
-  },
-  {
-    key: 'tags',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//a[@rel="tag"]/text()'],
-    meta: { multiple: true },
-  },
-];
-
-const result = await scraper.evaluateWebsite<Article>({
-  url: 'https://example.com/article',
-  patterns,
-});
-```
-
-### Example 3: XML Parsing
-
-```typescript
-const result = await scraper.evaluateWebsite({
+const result = await scraperService.evaluateWebsite({
   url: 'https://example.com/sitemap.xml',
   contentType: 'text/xml',
   patterns: [
@@ -811,133 +252,30 @@ const result = await scraper.evaluateWebsite({
       returnType: 'text',
       patterns: ['.//loc/text()'],
     },
-    {
-      key: 'lastmod',
-      patternType: 'xpath',
-      returnType: 'text',
-      patterns: ['.//lastmod/text()'],
-    },
   ],
 });
 ```
 
-### Example 4: XPath Validation Before Scraping
+### URL Health Check
 
 ```typescript
-async scrapeSafely(url: string, xpathPatterns: string[]) {
-  // Fetch HTML first
-  const response = await fetch(url);
-  const html = await response.text();
-
-  // Validate XPath patterns
-  const validation = this.scraper.validateXpath(html, xpathPatterns);
-
-  if (!validation.valid) {
-    const invalidPatterns = validation.results
-      .filter(r => !r.valid)
-      .map(r => `${r.xpath}: ${r.error}`);
-
-    throw new Error(`Invalid XPath patterns: ${invalidPatterns.join(', ')}`);
-  }
-
-  // Patterns are valid, proceed with scraping
-  const result = await this.scraper.evaluateWebsite({
-    html,
-    patterns: [
-      // ... your patterns
-    ],
-  });
-
-  return result.results;
-}
-```
-
-### Example 5: Complex E-commerce Scraping
-
-```typescript
-interface ProductListing {
-  name: string;
-  price: string;
-  rating: string;
-  reviewCount: string;
-  image: string;
-  availability: string;
+// Check single URL
+const result = await scraperService.checkUrlAlive('https://example.com');
+if (result[0].alive) {
+  console.log(`${result[0].url} is alive (${result[0].statusCode})`);
+} else {
+  console.log(`${result[0].url} is dead: ${result[0].error}`);
 }
 
-const patterns: PatternField[] = [
-  {
-    key: 'container',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['//li[contains(@class, "product")]'],
-    meta: { isContainer: true },
-  },
-  {
-    key: 'name',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['.//h2[contains(@class, "product-title")]/text()'],
-    meta: {
-      alterPattern: ['.//a[@class="product-link"]/@title'],
-    },
-    pipes: {
-      trim: true,
-      replace: [{ from: '\\s+', to: ' ' }],
-    },
-  },
-  {
-    key: 'price',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['.//span[@class="price"]//bdi/text()'],
-    pipes: {
-      trim: true,
-      replace: [
-        { from: '\\$', to: '' },
-        { from: ',', to: '' },
-      ],
-    },
-  },
-  {
-    key: 'rating',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['.//div[@class="star-rating"]/@style'],
-  },
-  {
-    key: 'reviewCount',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['.//span[@class="review-count"]/text()'],
-    pipes: {
-      trim: true,
-      replace: [{ from: '[^0-9]', to: '' }],
-    },
-  },
-  {
-    key: 'image',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['.//img/@src'],
-  },
-  {
-    key: 'availability',
-    patternType: 'xpath',
-    returnType: 'text',
-    patterns: ['.//span[contains(@class, "stock")]/text()'],
-    pipes: {
-      trim: true,
-      toLowerCase: true,
-    },
-  },
-];
+// Check multiple URLs
+const urls = ['https://example.com', 'https://broken-link.com'];
+const healthResults = await scraperService.checkUrlAlive(urls);
 
-const result = await scraper.evaluateWebsite<ProductListing>({
-  url: 'https://www.scrapingcourse.com/ecommerce/',
-  patterns,
-});
-
-console.log(`Found ${result.results.length} products`);
+// Filter dead URLs
+const deadUrls = healthResults.filter((r) => !r.alive);
+if (deadUrls.length > 0) {
+  console.warn(`Found ${deadUrls.length} dead URLs:`, deadUrls);
+}
 ```
 
 ## Development
@@ -957,6 +295,9 @@ yarn test:watch
 # Lint
 yarn lint
 yarn format
+
+# Run examples
+yarn test:examples
 ```
 
 ## Contributing

@@ -12,13 +12,23 @@ coverage/
 jest.config.js
 jest-e2e.json
 
-# Build tools
+# Build artifacts
 tsconfig.json
 tsconfig.build.json
 tsconfig.lib.json
 nest-cli.json
 .prettierrc
 eslint.config.mjs
+
+# Development scripts
+scripts/
+
+# Git and CI/CD
+.git/
+.gitignore
+.gitattributes
+.github/
+.husky/
 
 # IDE
 .vscode/
@@ -31,11 +41,6 @@ eslint.config.mjs
 .DS_Store
 Thumbs.db
 
-# Git
-.git/
-.gitignore
-.gitattributes
-
 # NPM
 node_modules/
 npm-debug.log
@@ -43,11 +48,13 @@ yarn-error.log
 yarn.lock
 package-lock.json
 
-# Examples and docs (keep README)
-examples/
-.github/
-
 # Misc
 .env
 .env.*
 *.log
+
+# Keep these files (don't ignore them)
+!README.md
+!LICENSE
+!CHANGELOG.md
+!docs/

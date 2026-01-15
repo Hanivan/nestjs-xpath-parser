@@ -46,7 +46,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:examples": "./scripts/run-examples.sh",
+    "version": "./scripts/version.sh",
+    "version:patch": "./scripts/version.sh patch",
+    "version:minor": "./scripts/version.sh minor",
+    "version:major": "./scripts/version.sh major",
     "prepublishOnly": "yarn build",
+    "pack": "./scripts/pack.sh",
     "publish": "./scripts/publish-auto.sh",
     "publish:dry": "./scripts/publish-auto.sh --dry-run",
     "prepare": "husky"
@@ -84,6 +89,7 @@
     "globals": "^17.0.0",
     "husky": "^9.1.7",
     "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
@@ -114,5 +120,14 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }
