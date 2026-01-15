@@ -6,11 +6,10 @@
 
 set -e
 
-echo "\\(^o^)/ Version Control Script"
-echo "============================="
-echo ""
+# Main loop - allow multiple version bumps
+while true; do
 
-# Colors
+# Colors (defined once)
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
@@ -18,9 +17,13 @@ RED='\033[0;31m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Get package info
+# Get package info (refresh each loop)
 PACKAGE_NAME=$(node -p "require('./package.json').name")
 PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+echo "\\(^o^)/ Version Control Script"
+echo "============================="
+echo ""
 
 echo -e "${BLUE}Package:${NC} $PACKAGE_NAME"
 echo -e "${BLUE}Current Version:${NC} $PACKAGE_VERSION"
@@ -241,3 +244,39 @@ echo -e "${YELLOW}5. Publish to npm:${NC}"
   echo "   # or"
   echo "   ./scripts/publish-auto.sh"
 echo ""
+
+  # ============================================
+  # Ask if user wants to bump again
+  # ============================================
+  if [ -z "$1" ]; then
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Bump Again?${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}Do you want to bump version again?${NC}"
+    echo "  1) Yes - bump again"
+    echo "  2) No - I'm done"
+    echo ""
+    read -p "Select [1-2]: " AGAIN
+
+    if [ "$AGAIN" != "1" ]; then
+      echo ""
+      echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+      echo -e "${GREEN}Done! Final version: $NEW_VERSION${NC}"
+      echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+      echo ""
+      exit 0
+    fi
+
+    # Clear for next iteration
+    echo ""
+    echo -e "${BLUE}Starting next bump...${NC}"
+    echo ""
+    # Clear argument to ensure interactive mode
+    set --
+  else
+    # Exit if argument was provided (single run mode)
+    exit 0
+  fi
+
+done
