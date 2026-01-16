@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2026-01-16
 
+### Added
+
+- Add retag option to versioning script for improved tag management
+
 ### Changed
 
 - Update tsconfig.json and enhance version script
+- Enhance versioning script for improved tag management and cross-platform compatibility
+- Update CHANGELOG.md for version 0.2.1
 
 ## [0.2.0] - 2026-01-16
 
