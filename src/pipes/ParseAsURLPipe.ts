@@ -44,21 +44,17 @@ export class ParseAsURLPipe extends PipeTransform<string, string> {
       return '';
     }
 
-    // If already absolute URL, return as is
     if (value.startsWith('http://') || value.startsWith('https://')) {
       return value;
     }
 
-    // If baseUrl is not set, return the value as is
     if (!this.baseUrl) {
       return value;
     }
 
     try {
-      // Use native URL constructor to resolve relative URLs
       return new URL(value, this.baseUrl).toString();
     } catch {
-      // If URL parsing fails, return original value
       return value;
     }
   }

@@ -37,6 +37,10 @@ export class DateFormatPipe extends PipeTransform<string, number> {
     return Math.floor(date.getTime() / 1000);
   }
 
+  /**
+   * Converts timestamp back to date string.
+   * Note: Always returns ISO date format (YYYY-MM-DD), regardless of configured format.
+   */
   reverse(timestamp: number): string {
     const date = new Date(timestamp * 1000);
     return date.toISOString().split('T')[0];

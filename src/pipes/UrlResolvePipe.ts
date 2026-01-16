@@ -50,11 +50,7 @@ export class UrlResolvePipe extends PipeTransform<string, string> {
     try {
       const base = new URL(this.baseUrl);
       const url = new URL(value);
-
-      if (url.host === base.host) {
-        return url.pathname;
-      }
-      return value;
+      return url.host === base.host ? url.pathname : value;
     } catch {
       return value;
     }

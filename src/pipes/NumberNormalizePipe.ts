@@ -1,5 +1,19 @@
 import { PipeTransform } from '../types';
 
+/** Multiplier values for number suffixes */
+const SUFFIX_MULTIPLIERS = {
+  k: 1000,
+  m: 1000000,
+  b: 1000000000,
+} as const;
+
+/** Threshold values for reverse conversion */
+const REVERSE_THRESHOLDS = [
+  { threshold: 1000000000, suffix: 'B', divisor: 1000000000 },
+  { threshold: 1000000, suffix: 'M', divisor: 1000000 },
+  { threshold: 1000, suffix: 'K', divisor: 1000 },
+] as const;
+
 /**
  * Predefined pipe that normalizes numbers with K/M/B suffixes.
  *
@@ -25,25 +39,20 @@ export class NumberNormalizePipe extends PipeTransform<string, number> {
     const normalized = value.toLowerCase().replace(/,/g, '.');
     let result = parseFloat(normalized);
 
-    if (normalized.endsWith('k')) {
-      result *= 1000;
-    } else if (normalized.endsWith('m')) {
-      result *= 1000000;
-    } else if (normalized.endsWith('b')) {
-      result *= 1000000000;
+    const suffix = normalized.slice(-1);
+    const multiplier =
+      SUFFIX_MULTIPLIERS[suffix as keyof typeof SUFFIX_MULTIPLIERS];
+    if (multiplier) {
+      result *= multiplier;
     }
 
     return Math.round(result) || 0;
   }
 
   reverse(value: number): string {
-    if (value >= 1000000000) {
-      return `${(value / 1000000000).toFixed(1)}B`;
-    } else if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`;
-    } else if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K`;
-    }
-    return String(value);
+    const threshold = REVERSE_THRESHOLDS.find((t) => value >= t.threshold);
+    return threshold
+      ? `${(value / threshold.divisor).toFixed(1)}${threshold.suffix}`
+      : String(value);
   }
 }

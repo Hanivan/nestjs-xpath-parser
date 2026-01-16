@@ -15,15 +15,14 @@ import { PipeTransform } from '../types';
 export class ExtractEmailPipe extends PipeTransform<string, string> {
   readonly type = 'extract-email' as const;
 
-  private readonly emailRegex =
-    /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
-
   exec(value: string): string {
     if (!value || typeof value !== 'string') {
       return '';
     }
 
-    const match = value.match(this.emailRegex);
+    const match = value.match(
+      /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi,
+    );
     return match ? match[0] : '';
   }
 

@@ -8,7 +8,7 @@ jest.mock('jsdom', () => ({
   JSDOM: jest.fn(),
 }));
 
-// Custom pipe for testing
+/** Test pipe that reverses a string */
 class ReversePipe extends PipeTransform<string, string> {
   readonly type = 'reverse' as const;
 
@@ -17,7 +17,6 @@ class ReversePipe extends PipeTransform<string, string> {
   }
 }
 
-// Register custom pipe
 PIPE_REGISTRY['reverse'] = ReversePipe;
 
 describe('Custom Pipes (unit)', () => {
@@ -26,7 +25,7 @@ describe('Custom Pipes (unit)', () => {
   const mockHttpService = {
     get: jest.fn(),
     request: jest.fn(),
-  };
+  } as const;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
