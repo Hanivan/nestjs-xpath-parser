@@ -50,6 +50,7 @@
     "version:patch": "./scripts/version.sh patch",
     "version:minor": "./scripts/version.sh minor",
     "version:major": "./scripts/version.sh major",
+    "version:retag": "./scripts/version.sh retag",
     "release": "./scripts/release.sh",
     "prepublishOnly": "yarn build",
     "pack": "./scripts/pack.sh",

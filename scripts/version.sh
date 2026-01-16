@@ -76,14 +76,15 @@ if [ -z "$1" ]; then
   echo "           ${PACKAGE_VERSION} → $(calculate_next_version major $PACKAGE_VERSION)"
   echo ""
   echo -e "${YELLOW}Other Options:${NC}"
-  echo "  custom  - Specify custom version"
-  echo "  cancel  - Exit without changes"
+  echo "  custom   - Specify custom version"
+  echo "  retag    - Recreate and re-push existing tag"
+  echo "  cancel   - Exit without changes"
   echo ""
 
-  read -p "Select option [patch/minor/major/custom/cancel]: " CHOICE
+  read -p "Select option [patch/minor/major/custom/retag/cancel]: " CHOICE
 
   case $CHOICE in
-    patch|minor|major|custom)
+    patch|minor|major|custom|retag)
       BUMP_TYPE=$CHOICE
       ;;
     cancel)
@@ -97,6 +98,142 @@ if [ -z "$1" ]; then
   esac
 else
   BUMP_TYPE=$1
+fi
+
+# ============================================
+# Handle Retag Option
+# ============================================
+if [ "$BUMP_TYPE" = "retag" ]; then
+  echo ""
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BLUE}Recreate and Re-push Tag${NC}"
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+
+  # Get current version
+  CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+  echo -e "${BLUE}Current version:${NC} $CURRENT_VERSION"
+  echo ""
+  echo -e "${YELLOW}Which tag do you want to recreate?${NC}"
+  echo "  1) v$CURRENT_VERSION (current)"
+  echo "  2) Custom version"
+  echo ""
+  read -p "Select option [1-2]: " RETAG_CHOICE
+
+  if [ "$RETAG_CHOICE" = "1" ]; then
+    TAG_VERSION="v$CURRENT_VERSION"
+  else
+    echo ""
+    read -p "Enter tag version (e.g. v0.2.1 or 0.2.1): " CUSTOM_TAG
+
+    # Add 'v' prefix if not present
+    if [[ ! "$CUSTOM_TAG" =~ ^v ]]; then
+      TAG_VERSION="v$CUSTOM_TAG"
+    else
+      TAG_VERSION="$CUSTOM_TAG"
+    fi
+  fi
+
+  echo ""
+  echo -e "${BLUE}Tag to recreate:${NC} $TAG_VERSION"
+  echo ""
+
+  # Check if tag exists
+  TAG_EXISTS_LOCALLY=$(git tag -l "$TAG_VERSION")
+  TAG_EXISTS_REMOTELY=$(git ls-remote --tags origin "refs/tags/$TAG_VERSION" 2>/dev/null)
+
+  if [ -z "$TAG_EXISTS_LOCALLY" ] && [ -z "$TAG_EXISTS_REMOTELY" ]; then
+    echo -e "${RED}(x_x) Tag $TAG_VERSION does not exist locally or remotely${NC}"
+    echo ""
+    echo -e "${YELLOW}Available tags:${NC}"
+    git tag | sort -V | tail -10
+    exit 1
+  fi
+
+  echo -e "${YELLOW}Tag status:${NC}"
+  if [ -n "$TAG_EXISTS_LOCALLY" ]; then
+    echo -e "${YELLOW}  ✓ Found locally${NC}"
+  fi
+  if [ -n "$TAG_EXISTS_REMOTELY" ]; then
+    echo -e "${YELLOW}  ✓ Found on remote${NC}"
+  fi
+  echo ""
+
+  read -p "$(echo -e ${YELLOW}Recreate and re-push tag $TAG_VERSION? [y/N]:${NC} )" -n 1 -r
+  echo
+  echo ""
+
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "${BLUE}Cancelled${NC}"
+    exit 0
+  fi
+
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${BLUE}Recreating Tag${NC}"
+  echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+
+  # Delete local tag
+  if [ -n "$TAG_EXISTS_LOCALLY" ]; then
+    echo -e "${YELLOW}(>_<) Deleting local tag...${NC}"
+    git tag -d "$TAG_VERSION"
+    echo -e "${GREEN}  ✓ Deleted local tag${NC}"
+  fi
+
+  # Delete remote tag
+  if [ -n "$TAG_EXISTS_REMOTELY" ]; then
+    echo -e "${YELLOW}(>_<) Deleting remote tag...${NC}"
+    git push origin ":refs/tags/$TAG_VERSION" 2>/dev/null || true
+    echo -e "${GREEN}  ✓ Deleted remote tag${NC}"
+  fi
+
+  echo ""
+  # Create new tag
+  echo -e "${YELLOW}(>_<) Creating new tag...${NC}"
+  git tag -a "$TAG_VERSION" -m "Release version ${TAG_VERSION#v}"
+  echo -e "${GREEN}  ✓ Tag created${NC}"
+
+  echo ""
+  echo -e "${YELLOW}(>_<) Pushing to remote...${NC}"
+  git push origin "$TAG_VERSION" --force
+  echo -e "${GREEN}(^_^) Tag pushed to remote${NC}"
+
+  echo ""
+  echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${GREEN}\\\\(^o^)/ Tag $TAG_VERSION recreated and pushed!${NC}"
+  echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+
+  # Ask if user wants to retag again
+  if [ -z "$1" ]; then
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Retag Again?${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}Do you want to recreate another tag?${NC}"
+    echo "  1) Yes - retag again"
+    echo "  2) No - I'm done"
+    echo ""
+    read -p "Select [1-2]: " AGAIN
+
+    if [ "$AGAIN" != "1" ]; then
+      echo ""
+      exit 0
+    fi
+
+    # Clear for next iteration
+    echo ""
+    echo -e "${BLUE}Starting next retag...${NC}"
+    echo ""
+    # Clear argument to ensure interactive mode
+    set --
+  else
+    exit 0
+  fi
+
+  # Continue the loop
+  continue
 fi
 
 # ============================================
