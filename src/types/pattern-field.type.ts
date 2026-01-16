@@ -21,7 +21,16 @@ export interface CleanerStepRules {
   merge?: boolean | 'with space' | 'with comma';
   /**
    * Custom pipe configuration(s).
-   * Pass as plain objects with type and properties:
+   * Pass as plain objects with type and properties.
+   *
+   * Available pre-defined pipes:
+   * - `regex` - Apply regex replacements (@example { type: 'regex', rules: [{ pattern: '^Prefix', replacement: '', flags: 'g' }] })
+   * - `num-normalize` - Convert "1.5K", "2.3M" to numbers (@example { type: 'num-normalize' })
+   * - `parse-as-url` - Resolve relative URLs using baseUrl from context (@example { type: 'parse-as-url' })
+   * - `extract-email` - Extract email from text (@example { type: 'extract-email' })
+   * - `date-format` - Convert date to timestamp (@example { type: 'date-format', format: 'YYYY-MM-DD' })
+   * - `url-resolve` - Resolve URLs with custom baseUrl (@example { type: 'url-resolve', baseUrl: 'https://example.com' })
+   *
    * @example
    * pipes: {
    *   custom: [

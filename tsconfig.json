@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,
-    "removeComments": true,
+    "removeComments": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
@@ -22,12 +22,8 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@commons/commons": [
-        "libs/commons/src"
-      ],
-      "@commons/commons/*": [
-        "libs/commons/src/*"
-      ]
+      "@commons/commons": ["libs/commons/src"],
+      "@commons/commons/*": ["libs/commons/src/*"]
     }
   }
 }

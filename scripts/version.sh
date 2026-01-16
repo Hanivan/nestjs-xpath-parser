@@ -209,10 +209,37 @@ if [ -d ".git" ]; then
     echo ""
     echo -e "${GREEN}(^_^) Git commit and tag created${NC}"
     echo ""
-    echo -e "${BLUE}To push to remote:${NC}"
-    echo "  git push origin main"
-    echo "  git push origin v${NEW_VERSION}"
+
+    # Ask if user wants to push to remote
+    echo -e "${YELLOW}Push to remote repository?${NC}"
+    echo "  1) Yes - Push commit and tag"
+    echo "  2) No - Skip push"
     echo ""
+    read -p "Select option [1-2]: " PUSH_CHOICE
+
+    if [ "$PUSH_CHOICE" = "1" ]; then
+      echo ""
+      echo -e "${YELLOW}(>_<) Pushing to remote...${NC}"
+
+      # Get current branch
+      CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+      # Push commit and tag
+      git push origin "$CURRENT_BRANCH"
+      git push origin "v${NEW_VERSION}"
+
+      echo ""
+      echo -e "${GREEN}(^_^) Pushed to remote successfully${NC}"
+      echo ""
+    else
+      echo ""
+      echo -e "${BLUE}(・_・) Push skipped${NC}"
+      echo ""
+      echo -e "${BLUE}To push manually later:${NC}"
+      echo "  git push origin $CURRENT_BRANCH"
+      echo "  git push origin v${NEW_VERSION}"
+      echo ""
+    fi
   else
     echo ""
     echo -e "${BLUE}(・_・) Git operations skipped${NC}"
