@@ -1,3 +1,12 @@
+import type { ScraperHtmlModuleOptions } from './types';
+import {
+  EvaluateOptions,
+  ExtractionResult,
+  HtmlNode,
+  PatternField,
+  UrlHealthCheckResult,
+  instantiatePipes,
+} from './types';
 import { Inject, Injectable, Logger, LogLevel, Optional } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
@@ -6,14 +15,6 @@ import decodeHtml from 'decode-html';
 import UserAgent from 'user-agents';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { HtmlBuilder } from './utils';
-import type { ScraperHtmlModuleOptions } from './types';
-import {
-  EvaluateOptions,
-  ExtractionResult,
-  HtmlNode,
-  PatternField,
-  UrlHealthCheckResult,
-} from './types';
 
 @Injectable()
 export class ScraperHtmlService {
@@ -71,7 +72,7 @@ export class ScraperHtmlService {
       this.suppressXpathErrors,
     );
 
-    const results = this.extractData<T>(options.patterns, dom);
+    const results = this.extractData<T>(options.patterns, dom, options.url);
 
     // Clean up error handler suppression
     dom.destroy();
@@ -196,21 +197,28 @@ export class ScraperHtmlService {
   private extractData<T = ExtractionResult>(
     patterns: PatternField[],
     dom: HtmlBuilder,
+    url?: string,
   ): T[] {
     const containerPattern = patterns.find((p) => p.meta?.isContainer);
     const fieldPatterns = patterns.filter((p) => !p.meta?.isContainer);
 
     if (containerPattern) {
-      return this.extractFromContainers(containerPattern, fieldPatterns, dom);
+      return this.extractFromContainers(
+        containerPattern,
+        fieldPatterns,
+        dom,
+        url,
+      );
     }
 
-    return this.extractWithoutContainer(fieldPatterns, dom);
+    return this.extractWithoutContainer(fieldPatterns, dom, url);
   }
 
   private extractFromContainers<T = ExtractionResult>(
     containerPattern: PatternField,
     fieldPatterns: PatternField[],
     dom: HtmlBuilder,
+    url?: string,
   ): T[] {
     const containers = this.findByPattern(containerPattern, dom);
     const results: T[] = [];
@@ -219,7 +227,7 @@ export class ScraperHtmlService {
       const item: Record<string, unknown> = {};
 
       for (const pattern of fieldPatterns) {
-        const value = this.extractFieldValue(pattern, dom, container);
+        const value = this.extractFieldValue(pattern, dom, container, url);
         if (value !== null) {
           item[pattern.key] = value;
         }
@@ -236,11 +244,12 @@ export class ScraperHtmlService {
   private extractWithoutContainer<T = ExtractionResult>(
     patterns: PatternField[],
     dom: HtmlBuilder,
+    url?: string,
   ): T[] {
     const item: Record<string, unknown> = {};
 
     for (const pattern of patterns) {
-      const value = this.extractFieldValue(pattern, dom);
+      const value = this.extractFieldValue(pattern, dom, undefined, url);
       if (value !== null) {
         item[pattern.key] = value;
       }
@@ -309,6 +318,7 @@ export class ScraperHtmlService {
     pattern: PatternField,
     dom: HtmlBuilder,
     context?: HtmlNode,
+    url?: string,
   ): unknown {
     if (pattern.patternType !== 'xpath') {
       throw new Error(
@@ -322,21 +332,43 @@ export class ScraperHtmlService {
     }
 
     if (pattern.meta?.multiple) {
-      return this.extractMultipleValues(nodes, pattern, dom);
+      return this.extractMultipleValues(nodes, pattern, dom, url);
     }
 
     const value = this.getNodeValue(nodes[0], pattern.returnType, dom);
-    return this.applyPipes(value, pattern.pipes);
+    return this.applyPipes(value, pattern.pipes, url);
   }
 
   private extractMultipleValues(
     nodes: HtmlNode[],
     pattern: PatternField,
     dom: HtmlBuilder,
+    url?: string,
   ): unknown {
+    // If merge is enabled, merge first then apply pipes to the result
+    if (pattern.pipes?.merge) {
+      const rawValues = nodes.map((node) =>
+        this.getNodeValue(node, pattern.returnType, dom),
+      );
+
+      let merged: string;
+      const mergeType = pattern.pipes.merge;
+
+      if (mergeType === 'with comma') {
+        merged = rawValues.join(', ');
+      } else {
+        // true or 'with space' -> merge with space
+        merged = rawValues.join(' ');
+      }
+
+      // Apply all pipes to the merged result
+      return this.applyPipes(merged, pattern.pipes, url);
+    }
+
+    // Original behavior: apply pipes to individual values
     const cleanedValues = nodes.map((node) => {
       const value = this.getNodeValue(node, pattern.returnType, dom);
-      return this.applyPipes(value, pattern.pipes);
+      return this.applyPipes(value, pattern.pipes, url);
     });
 
     if (pattern.meta?.multiple === 'with comma') {
@@ -361,7 +393,11 @@ export class ScraperHtmlService {
     return dom.value(node);
   }
 
-  private applyPipes(value: string, pipes?: PatternField['pipes']): string {
+  private applyPipes(
+    value: string,
+    pipes?: PatternField['pipes'],
+    url?: string,
+  ): string {
     if (!pipes || !value) {
       return value;
     }
@@ -390,6 +426,28 @@ export class ScraperHtmlService {
           new RegExp(replacement.from, 'g'),
           replacement.to,
         );
+      }
+    }
+
+    // Apply custom pipe(s) if specified
+    if (pipes.custom && pipes.custom.length > 0) {
+      const customPipes = instantiatePipes(pipes.custom, url);
+
+      for (const customPipe of customPipes) {
+        if (typeof customPipe.exec === 'function') {
+          try {
+            const transformed = customPipe.exec(result);
+            // Convert back to string if possible
+            result =
+              typeof transformed === 'string'
+                ? transformed
+                : String(transformed);
+          } catch (error) {
+            if (this.shouldLog('error')) {
+              this.logger.error(`Custom pipe execution failed:`, error);
+            }
+          }
+        }
       }
     }
 

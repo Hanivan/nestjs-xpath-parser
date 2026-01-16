@@ -357,7 +357,235 @@ Pipes are applied in this specific order:
 4. **Chain carefully**: Consider the order of replacements
 5. **Escape properly**: Use `\\` for regex escape sequences
 
+## Custom Pipes
+
+For advanced transformations beyond built-in pipes, you can create and use custom pipes.
+
+### Using Predefined Custom Pipes
+
+The library includes several predefined custom pipes:
+
+#### RegexPipe
+
+Apply multiple regex replacements with better control than built-in replace.
+
+```typescript
+{
+  key: 'title',
+  patterns: ['.//h1/text()'],
+  pipes: {
+    trim: true,
+    custom: [
+      {
+        type: 'regex',
+        rules: [
+          { pattern: '^Prefix: ', replacement: '', flags: '' },
+          { pattern: '\\s+', replacement: ' ', flags: 'g' },
+        ],
+      },
+    ],
+  },
+}
+```
+
+#### NumberNormalizePipe
+
+Convert human-readable numbers (1.5K, 2.3M) to actual numbers.
+
+```typescript
+{
+  key: 'views',
+  patterns: ['.//span[@class="views"]/text()'],
+  pipes: {
+    custom: [{ type: 'num-normalize' }],
+  },
+}
+// Input: "1.5K" → Output: "1500"
+// Input: "2.3M" → Output: "2300000"
+```
+
+#### ParseAsURLPipe
+
+Resolve relative URLs to absolute URLs using the fetched page's URL as base.
+
+```typescript
+{
+  key: 'link',
+  patterns: ['.//a/@href'],
+  pipes: {
+    custom: [{ type: 'parse-as-url' }],
+  },
+}
+
+// When scraping from https://example.com/path/to/page
+// Input: "/other/page" → Output: "https://example.com/other/page"
+// Input: "page" → Output: "https://example.com/path/page"
+```
+
+**Note**: The `baseUrl` is automatically set from the fetched URL.
+
+#### ExtractEmailPipe
+
+Extract email addresses from text.
+
+```typescript
+{
+  key: 'email',
+  patterns: ['.//p[@class="contact"]/text()'],
+  pipes: {
+    custom: [{ type: 'extract-email' }],
+  },
+}
+// Input: "Contact us at support@example.com for help"
+// Output: "support@example.com"
+```
+
+#### DateFormatPipe
+
+Convert date strings to Unix timestamps.
+
+```typescript
+{
+  key: 'timestamp',
+  patterns: ['.//time/@datetime'],
+  pipes: {
+    custom: [{ type: 'date-format', format: 'YYYY-MM-DD' }],
+  },
+}
+// Input: "2024-01-15" → Output: "1705334400"
+```
+
+#### UrlResolvePipe
+
+Resolve relative URLs to absolute URLs with a specified base URL.
+
+```typescript
+{
+  key: 'fullUrl',
+  patterns: ['.//a/@href'],
+  pipes: {
+    custom: [{ type: 'url-resolve', baseUrl: 'https://example.com' }],
+  },
+}
+// Input: "/page" → Output: "https://example.com/page"
+```
+
+### Creating Custom Pipes
+
+You can create your own pipes by extending `PipeTransform`:
+
+```typescript
+import { PipeTransform, PIPE_REGISTRY } from '@hanivanrizky/nestjs-xpath-parser';
+
+// Define your pipe
+class ReversePipe extends PipeTransform<string, string> {
+  type: 'reverse' = 'reverse';
+
+  exec(value: string): string {
+    return value.split('').reverse().join('');
+  }
+}
+
+// Register it
+PIPE_REGISTRY['reverse'] = ReversePipe;
+
+// Use it in patterns
+{
+  key: 'reversed',
+  patterns: ['.//h1/text()'],
+  pipes: {
+    custom: [{ type: 'reverse' }],
+  },
+}
+```
+
+### Custom Pipe with Dynamic baseUrl
+
+If your custom pipe needs the fetched URL (like `ParseAsURLPipe`), add a `baseUrl` property:
+
+```typescript
+class MyUrlPipe extends PipeTransform<string, string> {
+  type: 'my-url' = 'my-url';
+
+  // This will be automatically set when scraping!
+  baseUrl?: string;
+
+  exec(value: string): string {
+    if (this.baseUrl && !value.startsWith('http')) {
+      return new URL(value, this.baseUrl).toString();
+    }
+    return value;
+  }
+}
+
+PIPE_REGISTRY['my-url'] = MyUrlPipe;
+
+// Use it - baseUrl is automatically set from fetched URL
+{
+  key: 'link',
+  patterns: ['.//a/@href'],
+  pipes: {
+    custom: [{ type: 'my-url' }],
+  },
+}
+```
+
+### Pipe Properties
+
+All custom pipe configs use this structure:
+
+```typescript
+{
+  type: 'pipe-type',           // Required: Unique identifier for the pipe
+  property1: 'value1',          // Pipe-specific properties
+  property2: 'value2',          // Passed to the pipe constructor via class-transformer
+}
+```
+
+### Chaining Custom Pipes
+
+You can chain multiple custom pipes with built-in pipes:
+
+```typescript
+{
+  key: 'price',
+  patterns: ['.//span[@class="price"]/text()'],
+  pipes: {
+    trim: true,                              // Built-in
+    custom: [
+      { type: 'regex', rules: [{ pattern: '^\\$', replacement: '' }] },
+      { type: 'num-normalize' },              // "25.5K" → "25500"
+    ],
+  },
+}
+```
+
+### Merge with Custom Pipes
+
+Use `merge: true` to combine multiple values before applying custom pipes:
+
+```typescript
+{
+  key: 'title',
+  patterns: ['.//div[@class="info"]//text()'],
+  meta: { multiple: true },
+  pipes: {
+    merge: true,  // Merge text nodes first
+    custom: [
+      {
+        type: 'regex',
+        rules: [{ pattern: '^Judul : ', replacement: '' }],
+      },
+    ],
+  },
+}
+// Input text nodes: ["Judul", " ", ": Test"]
+// After merge: "Judul : Test"
+// After regex: "Test"
+```
+
 ## Related Features
 
 - [Pattern-Based Extraction](./pattern-based-extraction.md) - Using pipes in patterns
 - [Container-Based Extraction](./container-extraction.md) - Pipes with containers
+- [Examples](../../src/examples/09-custom-pipes.ts) - Complete custom pipe examples

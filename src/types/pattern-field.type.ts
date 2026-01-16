@@ -17,6 +17,21 @@ export interface CleanerStepRules {
   toUpperCase?: boolean;
   replace?: CleanerRule[];
   decode?: boolean;
+  /** Merge multiple values into single string before applying other pipes */
+  merge?: boolean | 'with space' | 'with comma';
+  /**
+   * Custom pipe configuration(s).
+   * Pass as plain objects with type and properties:
+   * @example
+   * pipes: {
+   *   custom: [
+   *     { type: 'regex', rules: [{ pattern: '^Prefix', replacement: '' }] },
+   *     { type: 'parse-as-url' },
+   *     { type: 'num-normalize' },
+   *   ]
+   * }
+   */
+  custom?: Array<Record<string, unknown>>;
 }
 
 export interface PatternField {

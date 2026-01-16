@@ -10,3 +10,6 @@ export * from './enums';
 
 // Utilities
 export * from './utils';
+
+// Predefined pipes
+export * from './pipes';

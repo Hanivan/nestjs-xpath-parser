@@ -28,6 +28,7 @@ EXAMPLES=(
   "06-real-world-ecommerce.ts"
   "07-url-health-check.ts"
   "08-configuration-options.ts"
+  "09-custom-pipes.ts"
 )
 
 # Function to run a single example

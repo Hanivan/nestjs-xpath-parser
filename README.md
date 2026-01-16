@@ -29,7 +29,9 @@
 - **(.\_.) Pattern-Based Extraction**: Define extraction patterns with metadata for structured scraping
 - **(>\_<) Container Extraction**: Extract lists of items with nested field patterns
 - **(・\_・) Data Cleaning Pipes**: Built-in transformations (trim, case conversion, replace, decode HTML)
-- **(>\_<) User-Agent Rotation**: Automatic user-agent rotation for stealth scraping
+- **(☆^O^☆) Custom Pipes**: Extensible pipe system with predefined pipes (Regex, NumberNormalize, ParseAsURL, ExtractEmail, DateFormat)
+- **(>\_<) Pipe Merge**: Merge multiple values before applying transformations
+- **(.\_.) User-Agent Rotation**: Automatic user-agent rotation for stealth scraping
 - **(o_o) XPath Validation**: Validate XPath patterns before scraping
 - **(.\_.) URL Health Check**: Check if URLs are alive using HTTP HEAD requests
 - **(.\_.) HTTP Fetching**: Built-in HTML/XML fetching with proxy support

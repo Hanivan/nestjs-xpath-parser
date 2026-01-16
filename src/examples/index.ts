@@ -17,6 +17,7 @@ export * from './04-alternative-patterns';
 export * from './05-xml-parsing';
 export * from './06-real-world-ecommerce';
 export * from './08-configuration-options';
+export * from './09-custom-pipes';
 
 // Export demonstration functions with descriptive names
 export { demonstrateBasicProductScraping } from './01-basic-product-scraping';
@@ -32,3 +33,12 @@ export {
   example4_CompleteConfiguration,
   example5_XPathValidationWithErrorSuppression,
 } from './08-configuration-options';
+export {
+  predefinedPipesExample,
+  regexPipeExample,
+  regexPipeWithMergeExample,
+  parseAsURLPipeExample,
+  chainPipesExample,
+  customPipeExample,
+  customPipeWithBaseUrlExample,
+} from './09-custom-pipes';

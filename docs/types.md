@@ -112,10 +112,49 @@ interface CleanerStepRules {
   toUpperCase?: boolean; // Convert to uppercase
   replace?: CleanerRule[]; // Find and replace rules
   decode?: boolean; // Decode HTML entities
+  merge?: boolean | 'with space' | 'with comma'; // Merge multiple values
+  custom?: Array<Record<string, unknown>>; // Custom pipe configs
 }
 ```
 
 **Note:** `toLowerCase` and `toUpperCase` are mutually exclusive.
+
+#### merge
+
+Merge multiple values into a single string before applying pipes:
+
+- `true` or `'with space'` - Join with space
+- `'with comma'` - Join with comma
+
+```typescript
+{
+  key: 'title',
+  patterns: ['.//div//text()'],
+  meta: { multiple: true },
+  pipes: {
+    merge: true, // Join text nodes with space
+  },
+}
+```
+
+#### custom
+
+Apply custom pipe transformations. Each pipe config must have a `type` field:
+
+```typescript
+{
+  key: 'price',
+  patterns: ['.//span[@class="price"]/text()'],
+  pipes: {
+    custom: [
+      { type: 'regex', rules: [{ pattern: '^\\$', replacement: '' }] },
+      { type: 'num-normalize' },
+    ],
+  },
+}
+```
+
+See [Data Cleaning Pipes](./features/data-cleaning-pipes.md#custom-pipes) for available custom pipes and how to create your own.
 
 ### CleanerRule
 
@@ -378,6 +417,17 @@ import {
   // Module types
   ScraperHtmlModuleOptions,
 
+  // Custom pipes
+  PipeTransform,
+  PIPE_REGISTRY,
+  instantiatePipes,
+  RegexPipe,
+  NumberNormalizePipe,
+  ParseAsURLPipe,
+  ExtractEmailPipe,
+  DateFormatPipe,
+  UrlResolvePipe,
+
   // Service
   ScraperHtmlService,
   ScraperHtmlModule,
@@ -389,3 +439,4 @@ import {
 - [API Reference](./api-reference.md) - Service methods
 - [Pattern-Based Extraction](./features/pattern-based-extraction.md) - Using patterns
 - [Container-Based Extraction](./features/container-extraction.md) - Container patterns
+- [Data Cleaning Pipes](./features/data-cleaning-pipes.md) - Built-in and custom pipes

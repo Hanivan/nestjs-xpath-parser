@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ScraperHtmlModule, ScraperHtmlService } from 'src';
+import { ScraperHtmlModule, ScraperHtmlService } from '../../src';
 
 describe('ScrapingCourse.com Integration Tests (e2e)', () => {
   let app: INestApplication;
