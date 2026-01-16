@@ -148,19 +148,9 @@ echo ""
 
 # Update package.json
 echo -e "${YELLOW}(・_・) Updating package.json...${NC}"
-npm version "$NEW_VERSION" --no-git-tag-version > /dev/null
 
-# Revert git changes if any (npm version creates commits by default)
-git checkout package.json package-lock.json 2>/dev/null || true
-
-# Manually update version in package.json
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS
-  sed -i '' "s/\"version\": \"$PACKAGE_VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
-else
-  # Linux
-  sed -i "s/\"version\": \"$PACKAGE_VERSION\"/\"version\": \"$NEW_VERSION\"/" package.json
-fi
+# Use Node.js to update version (reliable across platforms)
+node -e "const pkg = require('./package.json'); pkg.version = '$NEW_VERSION'; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));"
 
 echo -e "${GREEN}(^_^) Version updated in package.json${NC}"
 
@@ -202,42 +192,123 @@ if [ -d ".git" ]; then
     # Commit
     git commit -m "chore(release): bump version to ${NEW_VERSION}"
 
-    # Create tag
-    echo -e "${YELLOW}(>_<) Creating git tag...${NC}"
-    git tag -a "v${NEW_VERSION}" -m "Release version ${NEW_VERSION}"
+    # Check if tag already exists
+    TAG_EXISTS_LOCALLY=$(git tag -l "v${NEW_VERSION}")
+    TAG_EXISTS_REMOTELY=$(git ls-remote --tags origin "refs/tags/v${NEW_VERSION}" 2>/dev/null)
+
+    if [ -n "$TAG_EXISTS_LOCALLY" ] || [ -n "$TAG_EXISTS_REMOTELY" ]; then
+      echo ""
+      echo -e "${YELLOW}(o_o) Tag v${NEW_VERSION} already exists!${NC}"
+      echo ""
+
+      if [ -n "$TAG_EXISTS_LOCALLY" ]; then
+        echo -e "${YELLOW}  ✓ Found locally${NC}"
+      fi
+      if [ -n "$TAG_EXISTS_REMOTELY" ]; then
+        echo -e "${YELLOW}  ✓ Found on remote${NC}"
+      fi
+      echo ""
+
+      echo -e "${YELLOW}Choose action:${NC}"
+      echo "  1) Delete and recreate tag (local + remote)"
+      echo "  2) Skip tag creation"
+      echo "  3) Cancel"
+      echo ""
+      read -p "Select option [1-3]: " TAG_CHOICE
+
+      case $TAG_CHOICE in
+        1)
+          echo ""
+          echo -e "${YELLOW}(>_<) Deleting existing tag...${NC}"
+
+          # Delete local tag
+          if [ -n "$TAG_EXISTS_LOCALLY" ]; then
+            git tag -d "v${NEW_VERSION}"
+            echo -e "${GREEN}  ✓ Deleted local tag${NC}"
+          fi
+
+          # Delete remote tag
+          if [ -n "$TAG_EXISTS_REMOTELY" ]; then
+            git push origin ":refs/tags/v${NEW_VERSION}" 2>/dev/null || true
+            echo -e "${GREEN}  ✓ Deleted remote tag${NC}"
+          fi
+
+          echo ""
+          # Create new tag
+          echo -e "${YELLOW}(>_<) Creating new git tag...${NC}"
+          git tag -a "v${NEW_VERSION}" -m "Release version ${NEW_VERSION}"
+          echo -e "${GREEN}(^_^) New tag created${NC}"
+          ;;
+        2)
+          echo ""
+          echo -e "${BLUE}(・_・) Skipping tag creation${NC}"
+          SKIP_PUSH=true
+          ;;
+        3)
+          echo ""
+          echo -e "${BLUE}Cancelled${NC}"
+          exit 0
+          ;;
+        *)
+          echo ""
+          echo -e "${RED}Invalid option${NC}"
+          exit 1
+          ;;
+      esac
+    else
+      # Create new tag (doesn't exist yet)
+      echo ""
+      echo -e "${YELLOW}(>_<) Creating git tag...${NC}"
+      git tag -a "v${NEW_VERSION}" -m "Release version ${NEW_VERSION}"
+    fi
 
     echo ""
     echo -e "${GREEN}(^_^) Git commit and tag created${NC}"
     echo ""
 
     # Ask if user wants to push to remote
-    echo -e "${YELLOW}Push to remote repository?${NC}"
-    echo "  1) Yes - Push commit and tag"
-    echo "  2) No - Skip push"
-    echo ""
-    read -p "Select option [1-2]: " PUSH_CHOICE
-
-    if [ "$PUSH_CHOICE" = "1" ]; then
+    if [ "$SKIP_PUSH" != "true" ]; then
+      echo -e "${YELLOW}Push to remote repository?${NC}"
+      echo "  1) Yes - Push commit and tag"
+      echo "  2) No - Skip push"
       echo ""
-      echo -e "${YELLOW}(>_<) Pushing to remote...${NC}"
+      read -p "Select option [1-2]: " PUSH_CHOICE
 
-      # Get current branch
-      CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+      if [ "$PUSH_CHOICE" = "1" ]; then
+        echo ""
+        echo -e "${YELLOW}(>_<) Pushing to remote...${NC}"
 
-      # Push commit and tag
-      git push origin "$CURRENT_BRANCH"
-      git push origin "v${NEW_VERSION}"
+        # Get current branch
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-      echo ""
-      echo -e "${GREEN}(^_^) Pushed to remote successfully${NC}"
-      echo ""
+        # Push commit
+        echo -e "${BLUE}Pushing commit...${NC}"
+        git push origin "$CURRENT_BRANCH"
+
+        # Push tag (use force if we recreated it)
+        if [ -n "$TAG_EXISTS_LOCALLY" ] || [ -n "$TAG_EXISTS_REMOTELY" ]; then
+          echo -e "${BLUE}Force pushing tag (recreated)...${NC}"
+          git push origin "v${NEW_VERSION}" --force
+        else
+          echo -e "${BLUE}Pushing tag...${NC}"
+          git push origin "v${NEW_VERSION}"
+        fi
+
+        echo ""
+        echo -e "${GREEN}(^_^) Pushed to remote successfully${NC}"
+        echo ""
+      else
+        echo ""
+        echo -e "${BLUE}(・_・) Push skipped${NC}"
+        echo ""
+        echo -e "${BLUE}To push manually later:${NC}"
+        echo "  git push origin $CURRENT_BRANCH"
+        echo "  git push origin v${NEW_VERSION}"
+        echo ""
+      fi
     else
       echo ""
-      echo -e "${BLUE}(・_・) Push skipped${NC}"
-      echo ""
-      echo -e "${BLUE}To push manually later:${NC}"
-      echo "  git push origin $CURRENT_BRANCH"
-      echo "  git push origin v${NEW_VERSION}"
+      echo -e "${BLUE}(・_・) Push skipped (no tag created)${NC}"
       echo ""
     fi
   else
