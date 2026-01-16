@@ -1,6 +1,6 @@
 {
   "name": "@hanivanrizky/nestjs-xpath-parser",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A NestJS module for HTML parsing and web scraping using XPath with support for user-agent rotation, proxy configuration, and flexible data extraction",
   "author": "Hanivan Rizky",
   "private": false,
