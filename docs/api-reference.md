@@ -519,24 +519,17 @@ interface ScraperHtmlModuleOptions {
 
 ## CLI Scripts
 
-Available npm scripts for development and publishing:
+Available pnpm scripts for development and releasing:
 
-### Version Management
+### Release
 
-| Script               | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `pnpm version`       | Interactive version menu                      |
-| `pnpm version:patch` | Bump patch version (bug fixes): 1.0.0 → 1.0.1 |
-| `pnpm version:minor` | Bump minor version (features): 1.0.0 → 1.1.0  |
-| `pnpm version:major` | Bump major version (breaking): 1.0.0 → 2.0.0  |
+Versioning, changelog, git tag, npm publish, and GitHub release are handled by
+[release-it](https://github.com/release-it/release-it).
 
-### Publishing
-
-| Script             | Description                               |
-| ------------------ | ----------------------------------------- |
-| `pnpm pack`        | Create tarball without publishing         |
-| `pnpm publish`     | Full publish with version check           |
-| `pnpm publish:dry` | Preview publish without actual publishing |
+| Script             | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `pnpm release`     | Interactive release (bump, changelog, tag, publish) |
+| `pnpm release:dry` | Preview a release without making any changes      |
 
 ### Development
 
