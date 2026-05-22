@@ -82,7 +82,7 @@ import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
       maxRetries: 5, // Custom retry count (default: 3)
       logLevel: ['error', 'warn'], // Only log errors and warnings
       suppressXpathErrors: true, // Suppress libxmljs XPath error messages
-      engine: 'libxmljs', // Use libxmljs (default) or 'jsdom' for JSDOM
+      parserEngine: 'libxmljs', // Use libxmljs (default) or 'jsdom' for JSDOM
     }),
   ],
 })
@@ -112,7 +112,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           'SCRAPER_SUPPRESS_XPATH_ERRORS',
           false,
         ),
-        engine: configService.get<'libxmljs' | 'jsdom'>(
+        parserEngine: configService.get<'libxmljs' | 'jsdom'>(
           'SCRAPER_ENGINE',
           'libxmljs',
         ),
@@ -321,6 +321,7 @@ Then point the parser at the saved file (a path or a loaded object). Supplying a
 ScraperHtmlModule.forRoot({
   httpEngine: 'cycletls', // optional; implied when a fingerprint is set
   fingerprint: './fingerprint.json', // path, or a TlsFingerprint object
+  timeout: 30, // optional CycleTLS request timeout in seconds
 });
 
 // Per-call override:
@@ -329,11 +330,17 @@ await scraperService.evaluateWebsite({
   patterns,
   httpEngine: 'cycletls',
   fingerprint: './fingerprint.json',
+  timeout: 15, // optional per-call timeout in seconds
 });
 ```
 
 Field mapping (browser-action → CycleTLS): `ja3 → ja3`, `ja4_r → ja4r`,
 `akamaiFingerprint → http2Fingerprint`, `userAgent → userAgent`.
+
+CycleTLS retries transient failures (5xx / network errors) with exponential
+backoff and bails immediately on 4xx. When the CycleTLS engine is active,
+`checkUrlAlive()` also sends its HEAD probe through CycleTLS so liveness checks
+use the same fingerprint as real fetches.
 
 > Requires the `cycletls` dependency, which downloads a Go helper binary on
 > install. The shared CycleTLS process is released on module destroy.

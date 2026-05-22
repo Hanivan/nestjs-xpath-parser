@@ -27,7 +27,7 @@ import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
 @Module({
   imports: [
     ScraperHtmlModule.forRoot({
-      engine: 'libxmljs', // Default, can be omitted
+      parserEngine: 'libxmljs', // Default, can be omitted
     }),
   ],
 })
@@ -60,7 +60,7 @@ import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
 @Module({
   imports: [
     ScraperHtmlModule.forRoot({
-      engine: 'jsdom',
+      parserEngine: 'jsdom',
     }),
   ],
 })
@@ -88,7 +88,7 @@ import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
     ScraperHtmlModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        engine: configService.get<'libxmljs' | 'jsdom'>(
+        parserEngine: configService.get<'libxmljs' | 'jsdom'>(
           'SCRAPER_ENGINE',
           'libxmljs',
         ),
@@ -126,7 +126,7 @@ import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
   imports: [
     ScraperHtmlModule.forRoot({
       // Use libxmljs for production performance
-      engine: 'libxmljs',
+      parserEngine: 'libxmljs',
 
       // Configure retry behavior
       maxRetries: 5,
@@ -144,9 +144,14 @@ export class AppModule {}
 
 ## Configuration Summary
 
-| Option   | Type                  | Default    | Description                    |
-| -------- | --------------------- | ---------- | ------------------------------ |
-| `engine` | 'libxmljs' \| 'jsdom' | 'libxmljs' | HTML/XML parsing engine to use |
+| Option         | Type                  | Default    | Description                                        |
+| -------------- | --------------------- | ---------- | -------------------------------------------------- |
+| `parserEngine` | 'libxmljs' \| 'jsdom' | 'libxmljs' | HTML/XML parsing engine to use                     |
+| `engine`       | 'libxmljs' \| 'jsdom' | -          | **Deprecated** alias for `parserEngine`            |
+
+> **Note:** The option was renamed `engine` → `parserEngine` to disambiguate it
+> from `httpEngine` (the HTTP fetch engine). `engine` still works but is
+> deprecated; `parserEngine` takes precedence when both are set.
 
 ## Related Features
 

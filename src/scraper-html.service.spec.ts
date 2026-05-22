@@ -244,7 +244,7 @@ describe('ScraperHtmlService', () => {
 
       const defaultService = module.get<ScraperHtmlService>(ScraperHtmlService);
       expect(defaultService).toBeDefined();
-      expect(defaultService['engine']).toBe('libxmljs');
+      expect(defaultService['parserEngine']).toBe('libxmljs');
     });
 
     it('should accept jsdom engine configuration', async () => {
@@ -264,7 +264,7 @@ describe('ScraperHtmlService', () => {
 
       const customService = module.get<ScraperHtmlService>(ScraperHtmlService);
       expect(customService).toBeDefined();
-      expect(customService['engine']).toBe('jsdom');
+      expect(customService['parserEngine']).toBe('jsdom');
     });
 
     it('should accept libxmljs engine configuration explicitly', async () => {
@@ -284,7 +284,7 @@ describe('ScraperHtmlService', () => {
 
       const customService = module.get<ScraperHtmlService>(ScraperHtmlService);
       expect(customService).toBeDefined();
-      expect(customService['engine']).toBe('libxmljs');
+      expect(customService['parserEngine']).toBe('libxmljs');
     });
   });
 

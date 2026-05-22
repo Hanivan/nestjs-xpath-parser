@@ -1,13 +1,6 @@
 import { readFile } from 'fs/promises';
+import { CycleTLSFingerprintOptions } from '../types/cycletls-fingerprint-options.type';
 import { TlsFingerprint } from '../types/tls-fingerprint.type';
-
-/** TLS/fingerprint options understood by a CycleTLS request. */
-export interface CycleTLSFingerprintOptions {
-  ja3?: string;
-  ja4r?: string;
-  http2Fingerprint?: string;
-  userAgent?: string;
-}
 
 /**
  * Resolve a fingerprint source into a {@link TlsFingerprint}. A string is

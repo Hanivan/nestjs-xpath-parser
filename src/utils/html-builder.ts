@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 import * as libxmljs from 'libxmljs2';
-import { EngineHtmlBuilder } from '../enums';
+import { ParserEngine } from '../enums';
 import { HtmlNode, HtmlNodeArray } from '../types';
 
 /**
@@ -14,7 +14,7 @@ type LibxmljsModule = typeof libxmljs & {
 const libxmljsWithHandlers = libxmljs as LibxmljsModule;
 
 export class HtmlBuilder {
-  private engine: EngineHtmlBuilder;
+  private engine: ParserEngine;
   private dom: libxmljs.Document | JSDOM;
   private originalErrorHandler?: ((message: string) => void) | undefined;
 
@@ -24,11 +24,9 @@ export class HtmlBuilder {
     contentType: 'text/html' | 'text/xml' = 'text/html',
     suppressErrors: boolean = false,
   ) {
-    this.engine = useJSDom
-      ? EngineHtmlBuilder.JSDOM
-      : EngineHtmlBuilder.LIBXMLJS;
+    this.engine = useJSDom ? ParserEngine.JSDOM : ParserEngine.LIBXMLJS;
 
-    if (this.engine === EngineHtmlBuilder.LIBXMLJS && suppressErrors) {
+    if (this.engine === ParserEngine.LIBXMLJS && suppressErrors) {
       // Suppress libxmljs XPath errors by replacing the error handler
       this.originalErrorHandler = libxmljsWithHandlers.errorCatchingHandler;
       libxmljsWithHandlers.errorCatchingHandler = () => {
@@ -36,7 +34,7 @@ export class HtmlBuilder {
       };
     }
 
-    if (this.engine === EngineHtmlBuilder.JSDOM) {
+    if (this.engine === ParserEngine.JSDOM) {
       this.dom = new JSDOM(plainText);
     } else {
       this.dom =
@@ -61,7 +59,7 @@ export class HtmlBuilder {
   destroy(): void {
     if (
       this.originalErrorHandler !== undefined &&
-      this.engine === EngineHtmlBuilder.LIBXMLJS
+      this.engine === ParserEngine.LIBXMLJS
     ) {
       // Restore the original error handler
       libxmljsWithHandlers.errorCatchingHandler = this.originalErrorHandler;
@@ -70,7 +68,7 @@ export class HtmlBuilder {
   }
 
   getXpath(expression: string): HtmlNode {
-    if (this.engine === EngineHtmlBuilder.JSDOM) {
+    if (this.engine === ParserEngine.JSDOM) {
       const dom = this.dom as JSDOM;
       const node = dom.window.document.evaluate(
         expression,
@@ -87,7 +85,7 @@ export class HtmlBuilder {
   }
 
   findXpath(expression: string): HtmlNodeArray {
-    if (this.engine === EngineHtmlBuilder.JSDOM) {
+    if (this.engine === ParserEngine.JSDOM) {
       const dom = this.dom as JSDOM;
       const iterator = dom.window.document.evaluate(
         expression,
@@ -112,7 +110,7 @@ export class HtmlBuilder {
   getValueXML(node: HtmlNode): string {
     if (!node) return '';
 
-    if (this.engine === EngineHtmlBuilder.JSDOM) {
+    if (this.engine === ParserEngine.JSDOM) {
       return (node as Element).textContent?.trim() || '';
     }
 
@@ -143,7 +141,7 @@ export class HtmlBuilder {
   htmlString(node: HtmlNode): string {
     if (!node) return '';
 
-    if (this.engine === EngineHtmlBuilder.JSDOM) {
+    if (this.engine === ParserEngine.JSDOM) {
       return (node as Element).innerHTML || '';
     }
 
@@ -155,13 +153,13 @@ export class HtmlBuilder {
   }
 
   getDocument(): libxmljs.Document | Document {
-    if (this.engine === EngineHtmlBuilder.JSDOM) {
+    if (this.engine === ParserEngine.JSDOM) {
       return (this.dom as JSDOM).window.document;
     }
     return this.dom as libxmljs.Document;
   }
 
-  getEngine(): EngineHtmlBuilder {
+  getEngine(): ParserEngine {
     return this.engine;
   }
 
@@ -169,7 +167,7 @@ export class HtmlBuilder {
    * Find nodes using XPath relative to a context node
    */
   findXpathInContext(expression: string, contextNode: HtmlNode): HtmlNodeArray {
-    if (this.engine === EngineHtmlBuilder.JSDOM) {
+    if (this.engine === ParserEngine.JSDOM) {
       const dom = this.dom as JSDOM;
       const iterator = dom.window.document.evaluate(
         expression,

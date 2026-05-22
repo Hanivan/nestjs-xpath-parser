@@ -3,7 +3,7 @@
  *
  * This example demonstrates advanced module configuration options:
  * - suppressXpathErrors: Suppress libxmljs XPath error messages
- * - engine: Choose between libxmljs (default) or JSDOM
+ * - parserEngine: Choose between libxmljs (default) or JSDOM
  * - logLevel: Control which log messages are displayed
  * - maxRetries: Configure HTTP retry behavior
  */
@@ -76,7 +76,7 @@ async function example2_EngineSelection_Libxmljs() {
   const module: TestingModule = await Test.createTestingModule({
     imports: [
       ScraperHtmlModule.forRoot({
-        engine: 'libxmljs', // Native C++ bindings, fastest
+        parserEngine: 'libxmljs', // Native C++ bindings, fastest
       }),
     ],
   }).compile();
@@ -127,7 +127,7 @@ async function example3_EngineSelection_JSDOM() {
   const module: TestingModule = await Test.createTestingModule({
     imports: [
       ScraperHtmlModule.forRoot({
-        engine: 'jsdom', // Pure JavaScript, browser-like
+        parserEngine: 'jsdom', // Pure JavaScript, browser-like
       }),
     ],
   }).compile();
@@ -181,7 +181,7 @@ async function example4_CompleteConfiguration() {
         maxRetries: 5, // Retry up to 5 times on failures
         logLevel: ['error', 'warn'], // Only log errors and warnings
         suppressXpathErrors: true, // Suppress XPath error messages
-        engine: 'libxmljs', // Use libxmljs for performance
+        parserEngine: 'libxmljs', // Use libxmljs for performance
       }),
     ],
   }).compile();

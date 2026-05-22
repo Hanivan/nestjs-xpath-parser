@@ -7,3 +7,4 @@ export * from './scraper-html-module-options.type';
 export * from './pipe-transform.type';
 export * from './pipe-registry';
 export * from './tls-fingerprint.type';
+export * from './cycletls-fingerprint-options.type';

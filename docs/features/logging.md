@@ -166,7 +166,7 @@ import { ScraperHtmlModule } from '@hanivanrizky/nestjs-xpath-parser';
       suppressXpathErrors: true,
 
       // Engine selection
-      engine: 'libxmljs',
+      parserEngine: 'libxmljs',
     }),
   ],
 })

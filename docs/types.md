@@ -15,6 +15,9 @@ interface EvaluateOptions {
   patterns: PatternField[]; // Extraction patterns
   useProxy?: boolean | string; // Enable proxy
   contentType?: 'text/html' | 'text/xml'; // Content type (default: 'text/html')
+  httpEngine?: HttpEngine; // Override the module-level HTTP fetch engine for this call
+  fingerprint?: string | TlsFingerprint; // Override the module-level TLS fingerprint for this call
+  timeout?: number; // Per-call CycleTLS timeout in seconds (overrides module-level)
 }
 ```
 
@@ -187,7 +190,11 @@ interface ScraperHtmlModuleOptions {
   maxRetries?: number; // Maximum HTTP retries (default: 3)
   logLevel?: LogLevel | LogLevel[]; // Log levels to enable (default: ['log', 'error', 'warn'])
   suppressXpathErrors?: boolean; // Suppress libxmljs XPath error messages (default: false)
-  engine?: 'libxmljs' | 'jsdom'; // HTML/XML parsing engine (default: 'libxmljs')
+  parserEngine?: ParserEngine; // HTML/XML parsing engine: 'libxmljs' | 'jsdom' (default: 'libxmljs')
+  engine?: ParserEngine; // @deprecated alias for parserEngine
+  httpEngine?: HttpEngine; // HTTP fetch engine: 'axios' (default) | 'cycletls'
+  fingerprint?: string | TlsFingerprint; // CycleTLS fingerprint (path or object); implies httpEngine: 'cycletls'
+  timeout?: number; // CycleTLS request timeout in seconds (axios engine ignores it)
 }
 ```
 
@@ -416,6 +423,12 @@ import {
 
   // Module types
   ScraperHtmlModuleOptions,
+
+  // Engines & fingerprint (CycleTLS)
+  HttpEngine, // const-object enum: 'axios' | 'cycletls'
+  ParserEngine, // const-object enum: 'libxmljs' | 'jsdom'
+  TlsFingerprint, // saved fingerprint shape from nestjs-browser-action
+  CycleTLSFingerprintOptions, // subset mapped into CycleTLS requests
 
   // Custom pipes
   PipeTransform,

@@ -2,6 +2,12 @@
 
 Check if URLs are alive using HTTP HEAD requests.
 
+> **Engine parity:** When the module is configured for the CycleTLS engine
+> (`httpEngine: 'cycletls'` or a `fingerprint` is set), the HEAD probe is sent
+> through CycleTLS with the same TLS fingerprint as `evaluateWebsite()`. This
+> keeps liveness results consistent with what the actual fetch will see against
+> JA3/JA4-based bot blocking. Without CycleTLS configured, axios is used.
+
 ## Overview
 
 The `checkUrlAlive()` method allows you to:

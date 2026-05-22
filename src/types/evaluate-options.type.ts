@@ -15,4 +15,9 @@ export interface EvaluateOptions {
    * fingerprint JSON, or an already-loaded {@link TlsFingerprint} object.
    */
   fingerprint?: string | TlsFingerprint;
+  /**
+   * Per-request timeout in seconds for the CycleTLS engine. Overrides the
+   * module-level `timeout`. Ignored by the axios engine.
+   */
+  timeout?: number;
 }

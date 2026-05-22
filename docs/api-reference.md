@@ -253,6 +253,11 @@ checkUrlAlive(
 ): Promise<UrlHealthCheckResult[]>
 ```
 
+> **Engine parity:** When the module resolves to the CycleTLS engine (either
+> `httpEngine: 'cycletls'` or a `fingerprint` is configured), the HEAD request is
+> sent through CycleTLS with the same TLS fingerprint as `evaluateWebsite`, so a
+> liveness result reflects what the real fetch will see. Otherwise axios is used.
+
 #### Parameters
 
 | Parameter          | Type                 | Required | Description                 |
@@ -352,9 +357,14 @@ static forRoot(options?: ScraperHtmlModuleOptions): DynamicModule
 
 #### Parameters
 
-| Parameter            | Type     | Required | Description                       |
-| -------------------- | -------- | -------- | --------------------------------- |
-| `options.maxRetries` | `number` | No       | Maximum HTTP retries (default: 3) |
+| Parameter              | Type                       | Required | Description                                                          |
+| ---------------------- | -------------------------- | -------- | -------------------------------------------------------------------- |
+| `options.maxRetries`   | `number`                   | No       | Maximum HTTP retries (default: 3)                                    |
+| `options.parserEngine` | `'libxmljs' \| 'jsdom'`    | No       | HTML/XML parsing engine (default: `'libxmljs'`)                      |
+| `options.engine`       | `'libxmljs' \| 'jsdom'`    | No       | **Deprecated** alias for `parserEngine`                              |
+| `options.httpEngine`   | `'axios' \| 'cycletls'`    | No       | HTTP fetch engine (default: `'axios'`; `'cycletls'` when fingerprint set) |
+| `options.fingerprint`  | `string \| TlsFingerprint` | No       | CycleTLS fingerprint: path to saved JSON or object. Implies cycletls |
+| `options.timeout`      | `number`                   | No       | CycleTLS request timeout in seconds (axios engine ignores it)        |
 
 #### Example
 
@@ -427,6 +437,9 @@ interface EvaluateOptions {
   patterns: PatternField[];
   useProxy?: boolean | string;
   contentType?: 'text/html' | 'text/xml';
+  httpEngine?: HttpEngine; // per-call override: 'axios' | 'cycletls'
+  fingerprint?: string | TlsFingerprint; // per-call fingerprint override
+  timeout?: number; // per-call CycleTLS timeout (seconds)
 }
 ```
 
@@ -492,6 +505,13 @@ interface UrlHealthCheckResult {
 ```typescript
 interface ScraperHtmlModuleOptions {
   maxRetries?: number;
+  logLevel?: LogLevel | LogLevel[];
+  suppressXpathErrors?: boolean;
+  parserEngine?: ParserEngine; // 'libxmljs' (default) | 'jsdom'
+  engine?: ParserEngine; // @deprecated alias for parserEngine
+  httpEngine?: HttpEngine; // 'axios' (default) | 'cycletls'
+  fingerprint?: string | TlsFingerprint; // implies httpEngine: 'cycletls'
+  timeout?: number; // CycleTLS request timeout in seconds
 }
 ```
 
