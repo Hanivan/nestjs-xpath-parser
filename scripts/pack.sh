@@ -45,7 +45,7 @@ echo -e "${YELLOW}(・_・) Cleaning previous builds...${NC}"
 rm -rf dist/
 
 echo -e "${YELLOW}(>_<) Building project...${NC}"
-yarn build
+pnpm build
 
 if [ $? -ne 0 ]; then
   echo -e "${RED}(x_x) Build failed!${NC}"
@@ -67,7 +67,7 @@ echo ""
 if ls src/**/*.spec.ts >/dev/null 2>&1 || ls test/**/*.spec.ts >/dev/null 2>&1; then
   echo -e "${YELLOW}(o_o) Running tests...${NC}"
 
-  yarn test
+  pnpm test
 
   if [ $? -ne 0 ]; then
     echo -e "${RED}(x_x) Tests failed!${NC}"

@@ -134,7 +134,7 @@ ts-node src/examples/08-configuration-options.ts
 Make sure dependencies are installed:
 
 ```bash
-yarn install
+pnpm install
 ```
 
 ### Run All Examples
@@ -142,8 +142,8 @@ yarn install
 Run all examples sequentially:
 
 ```bash
-# Using yarn
-yarn test:examples
+# Using pnpm
+pnpm test:examples
 
 # Or directly
 ./scripts/run-examples.sh
@@ -175,7 +175,7 @@ npx ts-node -r tsconfig-paths/register src/examples/01-basic-product-scraping.ts
 Or after building, using node:
 
 ```bash
-yarn build
+pnpm build
 node dist/examples/01-basic-product-scraping.js
 ```
 

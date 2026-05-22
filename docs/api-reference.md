@@ -525,29 +525,29 @@ Available npm scripts for development and publishing:
 
 | Script               | Description                                   |
 | -------------------- | --------------------------------------------- |
-| `yarn version`       | Interactive version menu                      |
-| `yarn version:patch` | Bump patch version (bug fixes): 1.0.0 → 1.0.1 |
-| `yarn version:minor` | Bump minor version (features): 1.0.0 → 1.1.0  |
-| `yarn version:major` | Bump major version (breaking): 1.0.0 → 2.0.0  |
+| `pnpm version`       | Interactive version menu                      |
+| `pnpm version:patch` | Bump patch version (bug fixes): 1.0.0 → 1.0.1 |
+| `pnpm version:minor` | Bump minor version (features): 1.0.0 → 1.1.0  |
+| `pnpm version:major` | Bump major version (breaking): 1.0.0 → 2.0.0  |
 
 ### Publishing
 
 | Script             | Description                               |
 | ------------------ | ----------------------------------------- |
-| `yarn pack`        | Create tarball without publishing         |
-| `yarn publish`     | Full publish with version check           |
-| `yarn publish:dry` | Preview publish without actual publishing |
+| `pnpm pack`        | Create tarball without publishing         |
+| `pnpm publish`     | Full publish with version check           |
+| `pnpm publish:dry` | Preview publish without actual publishing |
 
 ### Development
 
 | Script               | Description             |
 | -------------------- | ----------------------- |
-| `yarn build`         | Build the project       |
-| `yarn test`          | Run unit tests          |
-| `yarn test:cov`      | Run tests with coverage |
-| `yarn test:watch`    | Run tests in watch mode |
-| `yarn lint`          | Run ESLint              |
-| `yarn test:examples` | Run all examples        |
+| `pnpm build`         | Build the project       |
+| `pnpm test`          | Run unit tests          |
+| `pnpm test:cov`      | Run tests with coverage |
+| `pnpm test:watch`    | Run tests in watch mode |
+| `pnpm lint`          | Run ESLint              |
+| `pnpm test:examples` | Run all examples        |
 
 For complete versioning documentation, see [Versioning Guide](./versioning.md).
 

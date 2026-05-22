@@ -49,6 +49,8 @@
 ## Installation
 
 ```bash
+pnpm add @hanivanrizky/nestjs-xpath-parser
+# or
 yarn add @hanivanrizky/nestjs-xpath-parser
 # or
 npm install @hanivanrizky/nestjs-xpath-parser
@@ -349,22 +351,22 @@ use the same fingerprint as real fetches.
 
 ```bash
 # Install dependencies
-yarn install
+pnpm install
 
 # Build
-yarn build
+pnpm build
 
 # Test
-yarn test
-yarn test:cov
-yarn test:watch
+pnpm test
+pnpm test:cov
+pnpm test:watch
 
 # Lint
-yarn lint
-yarn format
+pnpm lint
+pnpm format
 
 # Run examples
-yarn test:examples
+pnpm test:examples
 ```
 
 ## Contributing

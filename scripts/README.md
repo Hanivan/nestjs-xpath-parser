@@ -7,8 +7,8 @@ Automated script for packaging and publishing the npm package to npmjs.com.
 ### Publish to NPM
 
 ```bash
-# Using yarn (recommended)
-yarn publish
+# Using pnpm (recommended)
+pnpm publish
 
 # Or directly
 ./scripts/publish-auto.sh
@@ -17,8 +17,8 @@ yarn publish
 ### Dry Run (Test First)
 
 ```bash
-# Using yarn
-yarn publish:dry
+# Using pnpm
+pnpm publish:dry
 
 # Or directly
 ./scripts/publish-auto.sh --dry-run
@@ -62,8 +62,8 @@ The automated publish script handles the entire publishing workflow:
 
 1. **Just run the publish script:**
    ```bash
-   yarn publish:dry  # Test first
-   yarn publish      # Actual publish
+   pnpm publish:dry  # Test first
+   pnpm publish      # Actual publish
    ```
 
 2. **The script will guide you through:**
@@ -123,7 +123,7 @@ npm version major  # Breaking changes
 ## Example Session
 
 ```bash
-$ yarn publish:dry
+$ pnpm publish:dry
 
 \\(^o^)/ Automated NPM Publisher
 ==========================
@@ -190,7 +190,7 @@ STEP 6: Publishing to NPM
 
 Everything looks good! Run without --dry-run to publish:
   ./scripts/publish-auto.sh
-  yarn publish
+  pnpm publish
 ```
 
 ## Troubleshooting
@@ -220,7 +220,7 @@ Everything looks good! Run without --dry-run to publish:
 **Solution:**
 - Check error messages
 - Fix TypeScript errors in your code
-- Run `yarn build` manually to debug
+- Run `pnpm build` manually to debug
 
 ### Tests Fail
 
@@ -244,7 +244,7 @@ chmod +x scripts/publish-auto.sh
 
 1. **Always test with dry run first:**
    ```bash
-   yarn publish:dry
+   pnpm publish:dry
    ```
 
 2. **Use semantic versioning:**

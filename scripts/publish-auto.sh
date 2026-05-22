@@ -157,7 +157,7 @@ echo -e "${YELLOW}(・_・) Cleaning previous builds...${NC}"
 rm -rf dist/
 
 echo -e "${YELLOW}(>_<) Building project...${NC}"
-if ! yarn build; then
+if ! pnpm build; then
   echo -e "${RED}(x_x) Build failed!${NC}"
   exit 1
 fi
@@ -177,7 +177,7 @@ echo ""
 if ls src/**/*.spec.ts >/dev/null 2>&1 || ls test/**/*.spec.ts >/dev/null 2>&1; then
   echo -e "${YELLOW}(o_o) Running tests...${NC}"
 
-  if ! yarn test; then
+  if ! pnpm test; then
     echo -e "${RED}(x_x) Tests failed!${NC}"
     read -p "$(echo -e ${YELLOW}Continue anyway? [y/N]:${NC} )" -n 1 -r
     echo
@@ -245,7 +245,7 @@ if [ "$DRY_RUN" = false ]; then
     echo ""
     echo -e "${BLUE}Install with:${NC}"
     echo "  npm install $PACKAGE_NAME"
-    echo "  yarn add $PACKAGE_NAME"
+    echo "  pnpm add $PACKAGE_NAME"
     echo ""
     echo -e "${BLUE}Version page:${NC}"
     echo "  https://www.npmjs.com/package/$PACKAGE_NAME/v/$PACKAGE_VERSION"
@@ -266,6 +266,6 @@ else
   echo ""
   echo -e "${BLUE}Everything looks good! Run without --dry-run to publish:${NC}"
   echo "  ./scripts/publish-auto.sh"
-  echo "  yarn publish:auto"
+  echo "  pnpm publish:auto"
   echo ""
 fi

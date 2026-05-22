@@ -39,7 +39,7 @@ Use for **bug fixes** that are backward compatible:
 **Example:**
 
 ```bash
-yarn version:patch
+pnpm version:patch
 # 1.0.0 → 1.0.1
 ```
 
@@ -56,7 +56,7 @@ Use for **new features** that are backward compatible:
 **Example:**
 
 ```bash
-yarn version:minor
+pnpm version:minor
 # 1.0.0 → 1.1.0
 ```
 
@@ -73,7 +73,7 @@ Use for **breaking changes**:
 **Example:**
 
 ```bash
-yarn version:major
+pnpm version:major
 # 1.0.0 → 2.0.0
 ```
 
@@ -85,14 +85,14 @@ Interactive script for version management:
 
 ```bash
 # Interactive menu
-yarn version
+pnpm version
 # or
 ./scripts/version.sh
 
 # Direct commands
-yarn version:patch   # Bump patch version
-yarn version:minor   # Bump minor version
-yarn version:major   # Bump major version
+pnpm version:patch   # Bump patch version
+pnpm version:minor   # Bump minor version
+pnpm version:major   # Bump major version
 ```
 
 ### What the Version Script Does
@@ -120,16 +120,16 @@ git commit -m "feat: add new feature"
 git push origin main
 
 # Step 3: Bump version (creates separate commit + tag)
-yarn version:patch   # or version:minor, version:major
+pnpm version:patch   # or version:minor, version:major
 
 # Step 4: Push the version tag
 git push --tags
 
 # Step 5: Create GitHub release
-yarn release
+pnpm release
 
 # Step 6: Publish to npm
-yarn publish:auto
+pnpm publish:auto
 ```
 
 ### Why This Order?
@@ -137,10 +137,10 @@ yarn publish:auto
 | Step | Command                   | What Happens                                     |
 | ---- | ------------------------- | ------------------------------------------------ |
 | 1-2  | `git commit` & `git push` | Your code changes are in git history             |
-| 3    | `yarn version:patch`      | Bumps version, creates separate commit + git tag |
+| 3    | `pnpm version:patch`      | Bumps version, creates separate commit + git tag |
 | 4    | `git push --tags`         | Pushes the version tag to remote                 |
-| 5    | `yarn release`            | Creates GitHub release from the tag              |
-| 6    | `yarn publish:auto`       | Builds, tests, and publishes to npm              |
+| 5    | `pnpm release`            | Creates GitHub release from the tag              |
+| 6    | `pnpm publish:auto`       | Builds, tests, and publishes to npm              |
 
 **Important:** Code changes and version bumps should always be in separate commits. This keeps your git history clean and makes it easy to see what changed between versions.
 
@@ -166,7 +166,7 @@ yarn publish:auto
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  3. Bump Version                                            │
-│     ├─ yarn version:patch/minor/major                      │
+│     ├─ pnpm version:patch/minor/major                      │
 │     ├─ Creates commit: "chore(release): bump version..."   │
 │     └─ Creates git tag: v1.0.1                             │
 │                                                             │
@@ -174,12 +174,12 @@ yarn publish:auto
 │     └─ git push --tags                                     │
 │                                                             │
 │  5. Create Release                                          │
-│     ├─ yarn release                                        │
+│     ├─ pnpm release                                        │
 │     ├─ Creates GitHub release                              │
 │     └─ Extracts notes from CHANGELOG.md                    │
 │                                                             │
 │  6. Publish                                                 │
-│     ├─ yarn publish:auto                                   │
+│     ├─ pnpm publish:auto                                   │
 │     ├─ Builds project                                      │
 │     ├─ Runs tests                                          │
 │     └─ Publishes to npm                                    │
@@ -191,14 +191,14 @@ yarn publish:auto
 
 | Script               | Description                                 |
 | -------------------- | ------------------------------------------- |
-| `yarn version`       | Interactive version menu                    |
-| `yarn version:patch` | Bump patch version                          |
-| `yarn version:minor` | Bump minor version                          |
-| `yarn version:major` | Bump major version                          |
-| `yarn release`       | Create git tag + GitHub release             |
-| `yarn publish:auto`  | Automated publish to npm                    |
-| `yarn publish:dry`   | Preview publish without actually publishing |
-| `yarn pack`          | Create tarball for testing                  |
+| `pnpm version`       | Interactive version menu                    |
+| `pnpm version:patch` | Bump patch version                          |
+| `pnpm version:minor` | Bump minor version                          |
+| `pnpm version:major` | Bump major version                          |
+| `pnpm release`       | Create git tag + GitHub release             |
+| `pnpm publish:auto`  | Automated publish to npm                    |
+| `pnpm publish:dry`   | Preview publish without actually publishing |
+| `pnpm pack`          | Create tarball for testing                  |
 
 ## Version Bump Examples
 
@@ -211,7 +211,7 @@ yarn publish:auto
 # Edit source code...
 
 # 2. Test the fix
-yarn test
+pnpm test
 
 # 3. Commit code changes
 git add .
@@ -219,17 +219,17 @@ git commit -m "fix: xpath attribute extraction bug"
 git push
 
 # 4. Bump patch version
-yarn version:patch
+pnpm version:patch
 # Output: 1.0.0 → 1.0.1
 
 # 5. Push tag
 git push --tags
 
 # 6. Create release
-yarn release
+pnpm release
 
 # 7. Publish to npm
-yarn publish:auto
+pnpm publish:auto
 ```
 
 ### Feature Release
@@ -241,7 +241,7 @@ yarn publish:auto
 # Edit source code...
 
 # 2. Test
-yarn test
+pnpm test
 
 # 3. Commit code changes
 git add .
@@ -249,7 +249,7 @@ git commit -m "feat: add truncate pipe"
 git push
 
 # 4. Bump minor version
-yarn version:minor
+pnpm version:minor
 # Output: 1.0.0 → 1.1.0
 
 # 5. Update CHANGELOG.md
@@ -268,10 +268,10 @@ git push
 git push --tags
 
 # 8. Create release
-yarn release
+pnpm release
 
 # 9. Publish
-yarn publish:auto
+pnpm publish:auto
 ```
 
 ### Breaking Change Release
@@ -286,7 +286,7 @@ yarn publish:auto
 # Update documentation...
 
 # 3. Test
-yarn test
+pnpm test
 
 # 4. Commit code changes
 git add .
@@ -294,7 +294,7 @@ git commit -m "refactor: rename evaluateWebsite to extract"
 git push
 
 # 5. Bump major version
-yarn version:major
+pnpm version:major
 # Output: 1.5.0 → 2.0.0
 
 # 6. Update CHANGELOG.md
@@ -316,10 +316,10 @@ git push
 
 # 8. Push tag & create release
 git push --tags
-yarn release
+pnpm release
 
 # 9. Publish
-yarn publish:auto
+pnpm publish:auto
 ```
 
 ## Publishing
@@ -353,7 +353,7 @@ Excluded files (see `.npmignore`):
 Create a tarball without publishing to npm:
 
 ```bash
-yarn pack
+pnpm pack
 
 # Creates: @hanivanrizky-nestjs-xpath-parser-VERSION.tgz
 
@@ -367,7 +367,7 @@ npm install ../path/to/@hanivanrizky-nestjs-xpath-parser-VERSION.tgz
 Preview what will be published:
 
 ```bash
-yarn publish:dry
+pnpm publish:dry
 
 # or
 ./scripts/publish-auto.sh --dry-run
@@ -377,13 +377,13 @@ yarn publish:dry
 
 ```bash
 # Full automated publish with all checks
-yarn publish:auto
+pnpm publish:auto
 
 # or native npm publish
-yarn publish
+pnpm publish
 ```
 
-### What `yarn publish:auto` Does
+### What `pnpm publish:auto` Does
 
 1. ✅ Checks npm authentication
 2. ✅ Verifies version doesn't exist on npm
@@ -419,7 +419,7 @@ Error: Version 0.1.1 already exists on npm
 Or manually bump:
 
 ```bash
-yarn version:patch
+pnpm version:patch
 ```
 
 ### Build Failed Before Publishing
@@ -432,10 +432,10 @@ Error: Build failed!
 
 ```bash
 # Check build errors
-yarn build
+pnpm build
 
 # Fix issues, then retry
-yarn publish:auto
+pnpm publish:auto
 ```
 
 ### Tests Failed
@@ -486,8 +486,8 @@ git push origin :refs/tags/v0.1.1
 ### 1. Always Test Before Publishing
 
 ```bash
-yarn test
-yarn build
+pnpm test
+pnpm build
 ```
 
 ### 2. Update CHANGELOG
@@ -517,7 +517,7 @@ Always keep code changes and version bumps in separate commits:
 ```bash
 # Good:
 git commit -m "feat: add feature"     # Code changes
-yarn version:patch                    # Version bump (separate commit)
+pnpm version:patch                    # Version bump (separate commit)
 
 # Bad:
 git add .
@@ -537,7 +537,7 @@ git push --tags
 Check the tarball before publishing:
 
 ```bash
-yarn pack
+pnpm pack
 tar -tzf @hanivanrizky-nestjs-xpath-parser-1.0.1.tgz | head -50
 ```
 
@@ -552,7 +552,7 @@ npm install @hanivanrizky/nestjs-xpath-parser@1.0.1
 
 ### 7. Create GitHub Releases
 
-Use `yarn release` to create GitHub releases with proper notes extracted from CHANGELOG.md.
+Use `pnpm release` to create GitHub releases with proper notes extracted from CHANGELOG.md.
 
 ## Quick Reference
 
@@ -563,10 +563,10 @@ git commit -m "feat: description"
 git push
 
 # Release
-yarn version:patch
+pnpm version:patch
 git push --tags
-yarn release
-yarn publish:auto
+pnpm release
+pnpm publish:auto
 ```
 
 ## Related Documentation
