@@ -35,6 +35,7 @@
 - **(o_o) XPath Validation**: Validate XPath patterns before scraping
 - **(.\_.) URL Health Check**: Check if URLs are alive using HTTP HEAD requests
 - **(.\_.) HTTP Fetching**: Built-in HTML/XML fetching with proxy support
+- **(>\_<) TLS Fingerprint Spoofing**: Optional CycleTLS engine that replays a real browser JA3/JA4/HTTP2 fingerprint captured by [nestjs-browser-action](https://github.com/Hanivan/nestjs-browser-action)
 - **(☆^O^☆) HTTP Retry**: Automatic retry with exponential backoff (default: 3 retries, configurable)
 - **(o_o) Log Level Control**: Control which log messages are displayed (errors always logged)
 - **(.\_.) XPath Error Suppression**: Optional suppression of libxmljs XPath error messages
@@ -300,6 +301,42 @@ if (deadUrls.length > 0) {
   console.warn(`Found ${deadUrls.length} dead URLs:`, deadUrls);
 }
 ```
+
+### CycleTLS Fingerprint Fetching
+
+Route requests through [CycleTLS](https://github.com/Danny-Dasilva/CycleTLS) to
+replay a real browser TLS/HTTP fingerprint and defeat JA3/JA4-based bot blocking.
+Capture the fingerprint with
+[nestjs-browser-action](https://github.com/Hanivan/nestjs-browser-action):
+
+```typescript
+// In a browser-action context (separate package):
+await browserAction.captureTlsFingerprint('./fingerprint.json');
+```
+
+Then point the parser at the saved file (a path or a loaded object). Supplying a
+`fingerprint` implies `httpEngine: 'cycletls'`; axios remains the default otherwise.
+
+```typescript
+ScraperHtmlModule.forRoot({
+  httpEngine: 'cycletls', // optional; implied when a fingerprint is set
+  fingerprint: './fingerprint.json', // path, or a TlsFingerprint object
+});
+
+// Per-call override:
+await scraperService.evaluateWebsite({
+  url: 'https://example.com',
+  patterns,
+  httpEngine: 'cycletls',
+  fingerprint: './fingerprint.json',
+});
+```
+
+Field mapping (browser-action → CycleTLS): `ja3 → ja3`, `ja4_r → ja4r`,
+`akamaiFingerprint → http2Fingerprint`, `userAgent → userAgent`.
+
+> Requires the `cycletls` dependency, which downloads a Go helper binary on
+> install. The shared CycleTLS process is released on module destroy.
 
 ## Development
 

@@ -7,23 +7,36 @@ import {
   UrlHealthCheckResult,
   instantiatePipes,
 } from './types';
-import { Inject, Injectable, Logger, LogLevel, Optional } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  LogLevel,
+  OnModuleDestroy,
+  Optional,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom, retry, throwError, timer } from 'rxjs';
 import decodeHtml from 'decode-html';
 import UserAgent from 'user-agents';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import { HtmlBuilder } from './utils';
+import initCycleTLS, { CycleTLSClient } from 'cycletls';
+import { HtmlBuilder, loadFingerprint, toCycleTLSOptions } from './utils';
+import { TlsFingerprint } from './types/tls-fingerprint.type';
+import { HttpEngine } from './enums/http-engine.enum';
 
 @Injectable()
-export class ScraperHtmlService {
+export class ScraperHtmlService implements OnModuleDestroy {
   private readonly logger = new Logger(ScraperHtmlService.name);
   private readonly userAgentGenerator: UserAgent;
   private readonly maxRetries: number;
   private readonly logLevels: LogLevel[];
   private readonly suppressXpathErrors: boolean;
   private readonly engine: 'libxmljs' | 'jsdom';
+  private readonly httpEngine?: HttpEngine;
+  private readonly defaultFingerprint?: string | TlsFingerprint;
+  private cycleClientPromise?: Promise<CycleTLSClient>;
 
   constructor(
     private readonly httpService: HttpService,
@@ -35,6 +48,8 @@ export class ScraperHtmlService {
     this.maxRetries = options?.maxRetries ?? 3;
     this.suppressXpathErrors = options?.suppressXpathErrors ?? false;
     this.engine = options?.engine ?? 'libxmljs';
+    this.httpEngine = options?.httpEngine;
+    this.defaultFingerprint = options?.fingerprint;
 
     // Normalize log levels to array
     this.logLevels = options?.logLevel
@@ -58,7 +73,16 @@ export class ScraperHtmlService {
 
     // Fetch HTML from URL if not provided
     if (!html && options.url) {
-      html = await this.fetchHtml(options.url, options.useProxy);
+      const fingerprint = options.fingerprint ?? this.defaultFingerprint;
+      const engine = this.resolveEngine(options.httpEngine, fingerprint);
+      html =
+        engine === HttpEngine.CYCLETLS
+          ? await this.fetchHtmlCycleTLS(
+              options.url,
+              options.useProxy,
+              fingerprint,
+            )
+          : await this.fetchHtml(options.url, options.useProxy);
     }
 
     if (!html) {
@@ -532,5 +556,106 @@ export class ScraperHtmlService {
     );
 
     return response.data as string;
+  }
+
+  /**
+   * Resolve the effective HTTP engine: per-call override → module default →
+   * if a fingerprint is supplied default to cycletls → otherwise axios.
+   */
+  private resolveEngine(
+    perCall: HttpEngine | undefined,
+    fingerprint: string | TlsFingerprint | undefined,
+  ): HttpEngine {
+    return (
+      perCall ??
+      this.httpEngine ??
+      (fingerprint ? HttpEngine.CYCLETLS : HttpEngine.AXIOS)
+    );
+  }
+
+  /** Lazily create and memoize the shared CycleTLS client. */
+  private getCycleClient(): Promise<CycleTLSClient> {
+    if (!this.cycleClientPromise) {
+      this.cycleClientPromise = initCycleTLS();
+    }
+    return this.cycleClientPromise;
+  }
+
+  private resolveProxy(useProxy?: boolean | string): string | undefined {
+    if (!useProxy) return undefined;
+    return typeof useProxy === 'string'
+      ? useProxy
+      : process.env.HTTP_PROXY || process.env.HTTPS_PROXY || undefined;
+  }
+
+  private async fetchHtmlCycleTLS(
+    url: string,
+    useProxy: boolean | string | undefined,
+    fingerprint: string | TlsFingerprint | undefined,
+  ): Promise<string> {
+    const fpOptions = fingerprint
+      ? toCycleTLSOptions(await loadFingerprint(fingerprint))
+      : {};
+    const userAgent =
+      fpOptions.userAgent ?? this.userAgentGenerator.random().toString();
+    const proxy = this.resolveProxy(useProxy);
+
+    if (this.shouldLog('debug')) {
+      this.logger.debug(
+        `Fetching ${url} via CycleTLS (User-Agent: ${userAgent}` +
+          `${fpOptions.ja3 ? `, ja3 set` : ''}` +
+          `${proxy ? `, proxy: ${proxy}` : ''})`,
+      );
+    }
+
+    const requestOptions = {
+      ...fpOptions,
+      userAgent,
+      ...(proxy ? { proxy } : {}),
+    };
+
+    const client = await this.getCycleClient();
+
+    let lastError: Error | undefined;
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+      try {
+        const response = await client.get(url, requestOptions);
+        if (response.status >= 500) {
+          throw new Error(`Server responded with status ${response.status}`);
+        }
+        return typeof response.data === 'string'
+          ? response.data
+          : await response.text();
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt === this.maxRetries) {
+          break;
+        }
+        const delayMs = Math.min(1000 * Math.pow(2, attempt), 10000);
+        if (this.shouldLog('warn')) {
+          this.logger.warn(
+            `Retry ${attempt + 1}/${this.maxRetries} for ${url} after ${delayMs}ms (error: ${lastError.message})`,
+          );
+        }
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+    const finalError =
+      lastError ?? new Error(`Failed to fetch URL via CycleTLS: ${url}`);
+    if (this.shouldLog('error')) {
+      this.logger.error(
+        `Failed to fetch URL via CycleTLS after ${this.maxRetries} retries: ${url}`,
+        finalError,
+      );
+    }
+    throw finalError;
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    if (this.cycleClientPromise) {
+      const client = await this.cycleClientPromise;
+      await client.exit();
+    }
   }
 }

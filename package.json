@@ -3,14 +3,36 @@
   "version": "0.2.1",
   "description": "A NestJS module for HTML parsing and web scraping using XPath with support for user-agent rotation, proxy configuration, and flexible data extraction",
   "author": "Hanivan Rizky",
-  "private": false,
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
   "files": [
     "dist/**/*",
     "!dist/*.tsbuildinfo"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hanivan/nestjs-xpath-parser.git"
+  },
+  "homepage": "https://github.com/Hanivan/nestjs-xpath-parser#readme",
+  "bugs": {
+    "url": "https://github.com/Hanivan/nestjs-xpath-parser/issues"
+  },
+  "engines": {
+    "node": ">=18.13.0"
+  },
+  "packageManager": "yarn@1.22.22",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "nestjs",
     "html",
@@ -25,19 +47,9 @@
     "xml",
     "html-parser"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Hanivan/nestjs-xpath-parser.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Hanivan/nestjs-xpath-parser/issues"
-  },
-  "homepage": "https://github.com/Hanivan/nestjs-xpath-parser#readme",
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "nest build",
+    "prepublishOnly": "yarn build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "test": "jest",
@@ -52,28 +64,30 @@
     "version:major": "./scripts/version.sh major",
     "version:retag": "./scripts/version.sh retag",
     "release": "./scripts/release.sh",
-    "prepublishOnly": "yarn build",
+    "release:it": "release-it",
+    "release:it:dry": "release-it --dry-run",
     "pack": "./scripts/pack.sh",
     "publish:auto": "./scripts/publish-auto.sh",
     "publish:dry": "./scripts/publish-auto.sh --dry-run",
     "prepare": "husky"
-  },
-  "peerDependencies": {
-    "@nestjs/common": "^10.0.0 || ^11.0.0",
-    "@nestjs/core": "^10.0.0 || ^11.0.0",
-    "reflect-metadata": "^0.1.13 || ^0.2.0",
-    "rxjs": "^7.0.0"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
     "axios": "^1.13.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
+    "cycletls": "^2.0.5",
     "decode-html": "^2.0.0",
     "https-proxy-agent": "^7.0.6",
     "jsdom": "^27.4.0",
     "libxmljs2": "^0.37.0",
     "user-agents": "^1.1.669"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0",
+    "reflect-metadata": "^0.1.13 || ^0.2.0",
+    "rxjs": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
@@ -83,6 +97,7 @@
     "@nestjs/core": "^11.1.11",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.1.11",
+    "@release-it/conventional-changelog": "^11.0.0",
     "@types/jest": "^30.0.0",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^25.0.8",
@@ -96,6 +111,7 @@
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "reflect-metadata": "^0.2.2",
+    "release-it": "^20.0.1",
     "rxjs": "^7.8.2",
     "source-map-support": "^0.5.21",
     "ts-jest": "^29.4.6",
