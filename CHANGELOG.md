@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.3.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.2.1...v0.3.0) (2026-05-22)
+
+
+### Features
+
+* integrate CycleTLS fingerprinting support for enhanced web scraping ([61ade22](https://github.com/Hanivan/nestjs-xpath-parser/commit/61ade2220427504b6b7f9e348c54fa53ebd3dbcb))
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
