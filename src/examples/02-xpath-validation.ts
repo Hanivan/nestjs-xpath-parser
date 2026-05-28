@@ -10,6 +10,7 @@
 
 import { ScraperHtmlService } from '../scraper-html.service';
 import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 async function demonstrateXPathValidation() {
   const httpService = new HttpService();
@@ -21,10 +22,11 @@ async function demonstrateXPathValidation() {
   try {
     console.log('\n(>_<) Fetching HTML from scrapingcourse.com...\n');
 
-    // Fetch HTML first
-    const html = await scraper['fetchHtml'](
-      'https://www.scrapingcourse.com/ecommerce/',
+    // Fetch HTML directly via HttpService
+    const response = await firstValueFrom(
+      httpService.get('https://www.scrapingcourse.com/ecommerce/'),
     );
+    const html = response.data as string;
 
     console.log('(^_^) HTML fetched successfully\n');
 
