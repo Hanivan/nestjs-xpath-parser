@@ -228,6 +228,10 @@ if (require.main === module) {
 export { demonstrateFeature };
 ```
 
+> **Internal architecture:** `ScraperHtmlService` delegates to `HtmlParser`
+> (parsing / extraction), `HttpTransport` (fetching / retries), and
+> `PipeEngine` (data transforms). The public API shown above is unchanged.
+
 ## Tips
 
 1. **Start with Example 1** if you're new to the package
@@ -322,7 +326,11 @@ const healthResults = await scraper.checkUrlAlive(productUrls);
 
 - Check the main README at the project root
 - Review the TypeScript type definitions
-- Look at the source code in `src/scraper-html.service.ts`
+- Look at the source code:
+  - `src/scraper-html.service.ts` — orchestrator (public API)
+  - `src/utils/html-parser.ts` — parsing & extraction engine
+  - `src/utils/http-transport.ts` — network & retry engine
+  - `src/pipes/pipe-engine.ts` — data transformation engine
 - Open an issue on GitHub
 
 ## Contributing

@@ -2,6 +2,28 @@
 
 Complete API reference for `ScraperHtmlService`.
 
+## Internal Architecture
+
+`ScraperHtmlService` is a thin orchestrator that delegates to three focused
+engines. The public API below is unchanged; this section is for contributors
+and advanced users who want to understand or extend the codebase.
+
+| Engine | File | Responsibility |
+|--------|------|----------------|
+| `HtmlParser` | `src/utils/html-parser.ts` | HTML/XML parsing, XPath evaluation, container extraction, `validateXpath()` |
+| `HttpTransport` | `src/utils/http-transport.ts` | Axios / CycleTLS fetching, retry + backoff, proxy, URL health check |
+| `PipeEngine` | `src/pipes/pipe-engine.ts` | Built-in pipes (trim, decode, replace, …) and custom pipe instantiation |
+
+All three engines are instantiated inside `ScraperHtmlService`'s constructor
+and are **not** exposed as NestJS providers. If you need direct access to an
+engine, import it from the package barrel:
+
+```typescript
+import { HtmlParser, HttpTransport, PipeEngine } from '@hanivanrizky/nestjs-xpath-parser';
+```
+
+---
+
 ## Service Methods
 
 ### evaluateWebsite

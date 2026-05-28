@@ -1,3 +1,4 @@
+export * from './pipe-engine';
 export * from './DateFormatPipe';
 export * from './NumberNormalizePipe';
 export * from './UrlResolvePipe';

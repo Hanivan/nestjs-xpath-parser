@@ -1,3 +1,5 @@
+export * from './html-parser';
+export * from './http-transport';
 export * from './html-builder';
 export * from './fingerprint';
 export * from './backoff';

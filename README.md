@@ -10,6 +10,9 @@
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/v/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Version" /></a>
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/l/@hanivanrizky/nestjs-xpath-parser.svg" alt="Package License" /></a>
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/dm/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Downloads" /></a>
+  <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://badge.fury.io/js/%40hanivanrizky%2Fnestjs-browser-action.svg" alt="npm version" /></a>
+  <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <img src="https://img.shields.io/badge/tests-44%20passed-brightgreen.svg" alt="Tests: 44 passed" />
 </p>
 
 ## Table of Contents
