@@ -23,4 +23,18 @@ else
 fi
 
 echo ""
+echo "Running examples (skip with SKIP_EXAMPLES=true)..."
+if [ "$SKIP_EXAMPLES" = "true" ]; then
+  echo "Examples skipped (SKIP_EXAMPLES=true)"
+else
+  pnpm test:examples
+  if [ $? -ne 0 ]; then
+    echo "Examples failed! Please fix the failing examples before pushing."
+    echo "To skip examples, run: SKIP_EXAMPLES=true git push"
+    exit 1
+  fi
+  echo "All examples passed!"
+fi
+
+echo ""
 echo "Ready to push!"
