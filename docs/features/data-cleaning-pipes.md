@@ -470,6 +470,25 @@ Resolve relative URLs to absolute URLs with a specified base URL.
 // Input: "/page" → Output: "https://example.com/page"
 ```
 
+#### CleanHtmlPipe
+
+Strip script/style tags and return visible text content, one line per text node.
+
+```typescript
+{
+  key: 'body',
+  patterns: ['.//div[@class="content"]'],
+  returnType: 'rawHTML',
+  pipes: {
+    custom: [{ type: 'clean-html' }],
+  },
+}
+// Input: "<div>Hello<script>alert(1)</script><style>body{}</style>World</div>"
+// Output: "Hello\nWorld"
+```
+
+Useful when extracting `rawHTML` from a container and you want readable text without markup noise.
+
 ### Creating Custom Pipes
 
 You can create your own pipes by extending `PipeTransform`:

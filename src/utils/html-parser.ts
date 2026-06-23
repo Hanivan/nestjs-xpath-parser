@@ -27,13 +27,22 @@ export class HtmlParser {
   parse(
     html: string,
     contentType: 'text/html' | 'text/xml' = 'text/html',
+    normalizeHtml: boolean = false,
   ): HtmlBuilder {
+    const input = normalizeHtml ? this.collapseWhitespace(html) : html;
     return HtmlBuilder.loadHtml(
-      html,
+      input,
       this.parserEngine === ParserEngine.JSDOM,
       contentType,
       this.suppressXpathErrors,
     );
+  }
+
+  private collapseWhitespace(html: string): string {
+    return html
+      .replace(/\t\t/g, '\t')
+      .replace(/\t\n/g, '\n')
+      .replace(/\n\n/g, '\n');
   }
 
   validateXpath(html: string, xpathPatterns?: string[]): ValidationResult {
@@ -71,18 +80,54 @@ export class HtmlParser {
     url?: string,
   ): T[] {
     const containerPattern = patterns.find((p) => p.meta?.isContainer);
-    const fieldPatterns = patterns.filter((p) => !p.meta?.isContainer);
+    const pagePattern = patterns.find((p) => p.meta?.isPage);
+    const fieldPatterns = patterns.filter(
+      (p) => !p.meta?.isContainer && !p.meta?.isPage,
+    );
+
+    const results: ExtractionResult[] = [];
 
     if (containerPattern) {
-      return this.extractFromContainers(
-        containerPattern,
-        fieldPatterns,
-        dom,
-        url,
+      results.push(
+        ...this.extractFromContainers(
+          containerPattern,
+          fieldPatterns,
+          dom,
+          url,
+        ),
+      );
+    } else {
+      results.push(...this.extractWithoutContainer(fieldPatterns, dom, url));
+    }
+
+    if (pagePattern) {
+      results.push(
+        ...(this.extractPagePattern<T>(pagePattern, dom) as ExtractionResult[]),
       );
     }
 
-    return this.extractWithoutContainer(fieldPatterns, dom, url);
+    return results as T[];
+  }
+
+  private extractPagePattern<T = ExtractionResult>(
+    pagePattern: PatternField,
+    dom: HtmlBuilder,
+  ): T[] {
+    const urlKey = pagePattern.meta?.pageUrlKey ?? 'url';
+    const textKey = pagePattern.meta?.pageTextKey ?? 'text';
+    const nodes = this.findByPattern(pagePattern, dom);
+
+    return nodes.map((node) => {
+      const urlNode = dom.findXpathInContext('./@href', node)[0];
+      const textNode = dom.findXpathInContext(
+        './text()[normalize-space()]',
+        node,
+      )[0];
+      return {
+        [urlKey]: urlNode ? dom.value(urlNode) : dom.value(node),
+        [textKey]: textNode ? dom.value(textNode) : dom.value(node),
+      } as T;
+    });
   }
 
   private extractFromContainers<T = ExtractionResult>(

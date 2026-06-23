@@ -491,6 +491,10 @@ interface PatternMeta {
   alterPattern?: string[];
   isContainer?: boolean;
   isPage?: boolean;
+  /** Key name for URL in pagination result objects. Defaults to 'url'. */
+  pageUrlKey?: string;
+  /** Key name for page text/number in pagination result objects. Defaults to 'text'. */
+  pageTextKey?: string;
 }
 ```
 
@@ -503,6 +507,8 @@ interface CleanerStepRules {
   toUpperCase?: boolean;
   replace?: CleanerRule[];
   decode?: boolean;
+  merge?: boolean | 'with space' | 'with comma';
+  custom?: Array<Record<string, unknown>>;
 }
 ```
 
@@ -538,6 +544,7 @@ interface ScraperHtmlModuleOptions {
   httpEngine?: HttpEngine; // 'axios' (default) | 'cycletls'
   fingerprint?: string | TlsFingerprint; // implies httpEngine: 'cycletls'
   timeout?: number; // CycleTLS request timeout in seconds
+  normalizeHtml?: boolean; // collapse repeated whitespace/tabs before parsing
 }
 ```
 

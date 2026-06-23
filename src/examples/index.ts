@@ -19,6 +19,7 @@ export * from './06-real-world-ecommerce';
 export * from './08-configuration-options';
 export * from './09-custom-pipes';
 export * from './10-cycletls-fingerprint';
+export * from './11-pagination-and-html-cleanup';
 
 // Export demonstration functions with descriptive names
 export { demonstrateBasicProductScraping } from './01-basic-product-scraping';

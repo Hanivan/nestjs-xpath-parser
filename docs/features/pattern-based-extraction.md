@@ -182,6 +182,40 @@ Mark this pattern as a container for list extraction. See [Container-Based Extra
 }
 ```
 
+#### isPage
+
+Mark this pattern as a pagination link extractor. Each matched node produces a separate result object with `url` (from `href`) and `text` (visible text).
+
+```typescript
+{
+  key: 'pages',
+  patternType: 'xpath',
+  returnType: 'text',
+  patterns: ['//ul[@class="pagination"]//a'],
+  meta: { isPage: true },
+}
+// Result: [{ url: '/page/2', text: '2' }, { url: '/page/3', text: '3' }, ...]
+```
+
+#### pageUrlKey / pageTextKey
+
+Rename the default `url` and `text` keys in pagination result objects.
+
+```typescript
+{
+  key: 'pages',
+  patternType: 'xpath',
+  returnType: 'text',
+  patterns: ['//ul[@class="pagination"]//a'],
+  meta: {
+    isPage: true,
+    pageUrlKey: 'href',   // default: 'url'
+    pageTextKey: 'label', // default: 'text'
+  },
+}
+// Result: [{ href: '/page/2', label: '2' }, ...]
+```
+
 ### pipes
 
 Data cleaning transformations applied after extraction.

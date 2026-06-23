@@ -5,6 +5,7 @@ import { NumberNormalizePipe } from '../pipes/NumberNormalizePipe';
 import { ParseAsURLPipe } from '../pipes/ParseAsURLPipe';
 import { RegexPipe } from '../pipes/RegexPipe';
 import { UrlResolvePipe } from '../pipes/UrlResolvePipe';
+import { CleanHtmlPipe } from '../pipes/CleanHtmlPipe';
 import { PipeTransform } from './pipe-transform.type';
 
 /**
@@ -30,6 +31,7 @@ export const PIPE_REGISTRY: Record<
   'num-normalize': NumberNormalizePipe,
   'url-resolve': UrlResolvePipe,
   'extract-email': ExtractEmailPipe,
+  'clean-html': CleanHtmlPipe,
 };
 
 /**

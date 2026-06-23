@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { ScraperHtmlService } from './scraper-html.service';
 import { PatternField, PipeTransform, PIPE_REGISTRY } from './types';
+import { CleanHtmlPipe } from './pipes/CleanHtmlPipe';
 
 // Mock JSDOM to avoid ESM issues in Jest
 jest.mock('jsdom', () => ({
@@ -330,6 +331,36 @@ describe('Custom Pipes (unit)', () => {
       });
 
       expect(result.results[0].link).toBe('https://example.com/page');
+    });
+  });
+
+  describe('CleanHtmlPipe', () => {
+    it('strips script and style tags, returns visible text joined by newline', () => {
+      const pipe = new CleanHtmlPipe();
+      const html = `
+        <div>
+          <script>alert('x')</script>
+          <style>.foo { color: red; }</style>
+          <p>Hello world</p>
+          <span>  extra spaces  </span>
+        </div>
+      `;
+      const result = pipe.exec(html);
+      expect(result).not.toContain('alert');
+      expect(result).not.toContain('color: red');
+      expect(result).toContain('Hello world');
+      expect(result).toContain('extra spaces');
+    });
+
+    it('returns empty string for empty input', () => {
+      const pipe = new CleanHtmlPipe();
+      expect(pipe.exec('')).toBe('');
+    });
+
+    it('returns value unchanged when no scripts or styles', () => {
+      const pipe = new CleanHtmlPipe();
+      const result = pipe.exec('<p>Simple text</p>');
+      expect(result).toContain('Simple text');
     });
   });
 });

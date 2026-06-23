@@ -31,4 +31,10 @@ export interface ScraperHtmlModuleOptions {
    * call via {@link EvaluateOptions.timeout}. Ignored by the axios engine.
    */
   timeout?: number;
+  /**
+   * When true, collapses double-tabs, tab-newlines, and double-newlines
+   * before handing HTML to the parser. Useful for malformed HTML from forums.
+   * Defaults to false.
+   */
+  normalizeHtml?: boolean;
 }

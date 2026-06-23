@@ -29,6 +29,8 @@ EXAMPLES=(
   "07-url-health-check.ts"
   "08-configuration-options.ts"
   "09-custom-pipes.ts"
+  "10-cycletls-fingerprint.ts"
+  "11-pagination-and-html-cleanup.ts"
 )
 
 # Function to run a single example

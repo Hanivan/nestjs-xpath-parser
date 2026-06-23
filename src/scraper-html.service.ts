@@ -25,6 +25,7 @@ export class ScraperHtmlService implements OnModuleDestroy {
   private readonly suppressXpathErrors: boolean;
   private readonly parserEngine: ParserEngine;
   private readonly httpEngine?: HttpEngine;
+  private readonly normalizeHtml: boolean;
   private readonly defaultFingerprint?:
     | string
     | import('./types').TlsFingerprint;
@@ -45,6 +46,7 @@ export class ScraperHtmlService implements OnModuleDestroy {
     this.parserEngine =
       options?.parserEngine ?? options?.engine ?? ParserEngine.LIBXMLJS;
     this.httpEngine = options?.httpEngine;
+    this.normalizeHtml = options?.normalizeHtml ?? false;
     this.defaultFingerprint = options?.fingerprint;
     this.requestTimeout = options?.timeout;
 
@@ -97,7 +99,11 @@ export class ScraperHtmlService implements OnModuleDestroy {
       throw new Error('Either html or url must be provided');
     }
 
-    const dom = this.htmlParser.parse(html, options.contentType || 'text/html');
+    const dom = this.htmlParser.parse(
+      html,
+      options.contentType || 'text/html',
+      this.normalizeHtml,
+    );
     const results = this.htmlParser.extractData<T>(
       options.patterns,
       dom,

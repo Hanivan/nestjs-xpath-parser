@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { of, throwError } from 'rxjs';
 import { ScraperHtmlService } from './scraper-html.service';
+import { HtmlParser } from './utils/html-parser';
+import { ParserEngine } from './enums';
+import { PatternField } from './types/pattern-field.type';
 import { AxiosError } from 'axios';
 
 // Mock JSDOM to avoid ESM issues in Jest
@@ -822,5 +825,68 @@ describe('ScraperHtmlService', () => {
       expect(result.results).toHaveLength(1);
       expect(result.results[0].title).toBe('Title from H1');
     });
+  });
+});
+
+describe('pageUrlKey / pageTextKey on PatternMeta', () => {
+  it('uses custom pageTextKey when set on page pattern', () => {
+    const htmlParser = new HtmlParser(ParserEngine.LIBXMLJS, false);
+    const html = `<html><body><a href="/page/2">2</a></body></html>`;
+    const dom = htmlParser.parse(html);
+    const patterns: PatternField[] = [
+      {
+        key: 'pagination',
+        patternType: 'xpath',
+        returnType: 'text',
+        patterns: ['.//a'],
+        meta: { isPage: true, pageUrlKey: 'href', pageTextKey: 'page' },
+      },
+    ];
+    const results = htmlParser.extractData(patterns, dom);
+    dom.destroy();
+    expect(results).toHaveLength(1);
+    expect(results[0]).toHaveProperty('href');
+    expect(results[0]).toHaveProperty('page');
+    expect(results[0]).not.toHaveProperty('url');
+    expect(results[0]).not.toHaveProperty('text');
+  });
+
+  it('uses default url/text keys when pageUrlKey/pageTextKey not set', () => {
+    const htmlParser = new HtmlParser(ParserEngine.LIBXMLJS, false);
+    const html = `<html><body><a href="/p2">2</a></body></html>`;
+    const dom = htmlParser.parse(html);
+    const patterns: PatternField[] = [
+      {
+        key: 'pagination',
+        patternType: 'xpath',
+        returnType: 'text',
+        patterns: ['.//a'],
+        meta: { isPage: true },
+      },
+    ];
+    const results = htmlParser.extractData(patterns, dom);
+    dom.destroy();
+    expect(results).toHaveLength(1);
+    expect(results[0]).toHaveProperty('url');
+    expect(results[0]).toHaveProperty('text');
+  });
+});
+
+describe('normalizeHtml option', () => {
+  it('collapses double tabs, tab-newlines, and double newlines before parsing', () => {
+    const htmlParser = new HtmlParser(ParserEngine.LIBXMLJS, false);
+    const messy = '<div>\t\tHello\t\n World\n\n</div>';
+    const dom = htmlParser.parse(messy, 'text/html', true);
+    const nodes = dom.findXpath('.//div');
+    expect(nodes.length).toBeGreaterThan(0);
+    dom.destroy();
+  });
+
+  it('does not normalize when normalizeHtml is false (default)', () => {
+    const htmlParser = new HtmlParser(ParserEngine.LIBXMLJS, false);
+    const dom = htmlParser.parse('<p>text</p>', 'text/html', false);
+    const nodes = dom.findXpath('.//p');
+    expect(nodes.length).toBe(1);
+    dom.destroy();
   });
 });

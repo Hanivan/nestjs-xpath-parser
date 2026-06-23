@@ -1,3 +1,4 @@
+import { existsSync } from 'fs';
 import { HttpService } from '@nestjs/axios';
 import { ScraperHtmlService } from '../scraper-html.service';
 import { HttpEngine } from '../enums/http-engine.enum';
@@ -76,14 +77,18 @@ async function demonstrateCycleTLSFingerprint() {
     });
     console.log('Result (object fingerprint):', results);
 
-    // Per-call override: force cycletls + a different fingerprint path.
-    const { results: overridden } = await scraperFromFile.evaluateWebsite({
-      url: 'https://tls.peet.ws/api/clean',
-      patterns,
-      httpEngine: HttpEngine.CYCLETLS,
-      fingerprint: './fingerprint.json',
-    });
-    console.log('Result (file fingerprint):', overridden);
+    // Per-call override: only run if the fingerprint file exists.
+    if (existsSync('./fingerprint.json')) {
+      const { results: overridden } = await scraperFromFile.evaluateWebsite({
+        url: 'https://tls.peet.ws/api/clean',
+        patterns,
+        httpEngine: HttpEngine.CYCLETLS,
+        fingerprint: './fingerprint.json',
+      });
+      console.log('Result (file fingerprint):', overridden);
+    } else {
+      console.log('(i) Skipping file fingerprint demo — fingerprint.json not found.');
+    }
   } finally {
     // Releases the underlying CycleTLS Go process.
     await scraper.onModuleDestroy();

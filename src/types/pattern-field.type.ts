@@ -4,6 +4,10 @@ export interface PatternMeta {
   alterPattern?: string[];
   isContainer?: boolean;
   isPage?: boolean;
+  /** Key name for URL in pagination result objects. Defaults to 'url'. */
+  pageUrlKey?: string;
+  /** Key name for page text/number in pagination result objects. Defaults to 'text'. */
+  pageTextKey?: string;
 }
 
 export interface CleanerRule {
