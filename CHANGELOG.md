@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.4.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.3.3...v0.4.0) (2026-06-23)
+
+
+### Features
+
+* add CleanHtmlPipe, normalizeHtml option, and pagination support ([36c089e](https://github.com/Hanivan/nestjs-xpath-parser/commit/36c089e9e6d5d3abf10124b2ee3c22a97dd22fec))
+
 ## [0.3.3](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.3.1...v0.3.3) (2026-05-28)
 
 ## [0.3.2](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.3.1...v0.3.2) (2026-05-28)
