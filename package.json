@@ -71,6 +71,7 @@
     "decode-html": "^2.0.0",
     "https-proxy-agent": "^7.0.6",
     "jsdom": "^27.4.0",
+    "jsonpath-plus": "^10.4.0",
     "libxmljs2": "^0.37.0",
     "user-agents": "^1.1.669"
   },

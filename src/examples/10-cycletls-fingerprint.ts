@@ -87,7 +87,9 @@ async function demonstrateCycleTLSFingerprint() {
       });
       console.log('Result (file fingerprint):', overridden);
     } else {
-      console.log('(i) Skipping file fingerprint demo — fingerprint.json not found.');
+      console.log(
+        '(i) Skipping file fingerprint demo — fingerprint.json not found.',
+      );
     }
   } finally {
     // Releases the underlying CycleTLS Go process.

@@ -30,7 +30,7 @@
 - **(.\_.) Pattern-Based Extraction**: Define extraction patterns with metadata for structured scraping
 - **(>\_<) Container Extraction**: Extract lists of items with nested field patterns
 - **(・\_・) Data Cleaning Pipes**: Built-in transformations (trim, case conversion, replace, decode HTML)
-- **(☆^O^☆) Custom Pipes**: Extensible pipe system with predefined pipes (Regex, NumberNormalize, ParseAsURL, ExtractEmail, DateFormat)
+- **(☆^O^☆) Custom Pipes**: Extensible pipe system with predefined pipes (Regex, RegexExtraction, RegexReplace, NumberNormalize, ParseAsURL, ExtractEmail, DateFormat, DateFormatSpecial, ExtractUrlParams, MediaFilter, QueryAppend, QueryRemover, JsonPath, CleanHtml, UrlResolve)
 - **(>\_<) Pipe Merge**: Merge multiple values before applying transformations
 - **(.\_.) User-Agent Rotation**: Automatic user-agent rotation for stealth scraping
 - **(o_o) XPath Validation**: Validate XPath patterns before scraping

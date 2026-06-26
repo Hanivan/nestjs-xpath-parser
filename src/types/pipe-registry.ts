@@ -1,11 +1,31 @@
 import { plainToClass } from 'class-transformer';
 import { DateFormatPipe } from '../pipes/DateFormatPipe';
 import { ExtractEmailPipe } from '../pipes/ExtractEmailPipe';
+import { ExtractUrlParamsPipe } from '../pipes/ExtractUrlParamsPipe';
+import { JsonPathPipe } from '../pipes/JsonPathPipe';
+import { MediaFilterPipe } from '../pipes/MediaFilterPipe';
 import { NumberNormalizePipe } from '../pipes/NumberNormalizePipe';
 import { ParseAsURLPipe } from '../pipes/ParseAsURLPipe';
+import { QueryAppendPipe } from '../pipes/QueryAppendPipe';
+import {
+  RegexExtractionPipe,
+  PageRegexExtractionPipe,
+  URLRegexExtractionPipe,
+} from '../pipes/RegexExtractionPipe';
+import {
+  RegexReplacePipe,
+  PageRegexReplacePipe,
+  URLRegexReplacePipe,
+} from '../pipes/RegexReplacePipe';
 import { RegexPipe } from '../pipes/RegexPipe';
 import { UrlResolvePipe } from '../pipes/UrlResolvePipe';
 import { CleanHtmlPipe } from '../pipes/CleanHtmlPipe';
+import {
+  QueryRemoverPipe,
+  PageQueryRemoverPipe,
+  URLQueryRemoverPipe,
+} from '../pipes/QueryRemoverPipe';
+import { DateFormatSpecialPipe } from '../pipes/DateFormatSpecialPipe';
 import { PipeTransform } from './pipe-transform.type';
 
 /**
@@ -25,6 +45,7 @@ export const PIPE_REGISTRY: Record<
   string,
   new (...args: unknown[]) => PipeTransform
 > = {
+  // original v2 pipes
   regex: RegexPipe,
   'parse-as-url': ParseAsURLPipe,
   'date-format': DateFormatPipe,
@@ -32,6 +53,21 @@ export const PIPE_REGISTRY: Record<
   'url-resolve': UrlResolvePipe,
   'extract-email': ExtractEmailPipe,
   'clean-html': CleanHtmlPipe,
+  // v1-compatible pipes
+  'regex-extraction': RegexExtractionPipe,
+  'regex-extraction--page': PageRegexExtractionPipe,
+  'regex-extraction--url': URLRegexExtractionPipe,
+  'regex-replace': RegexReplacePipe,
+  'regex-replace--page': PageRegexReplacePipe,
+  'regex-replace--url': URLRegexReplacePipe,
+  'extract-url-params': ExtractUrlParamsPipe,
+  'media-filter': MediaFilterPipe,
+  'query-append': QueryAppendPipe,
+  'json-path': JsonPathPipe,
+  'query-remover': QueryRemoverPipe,
+  'query-remover--page': PageQueryRemoverPipe,
+  'query-remover--url': URLQueryRemoverPipe,
+  'date-format-special': DateFormatSpecialPipe,
 };
 
 /**

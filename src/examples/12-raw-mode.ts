@@ -44,7 +44,10 @@ async function demonstrateRawMode() {
   });
 
   console.log('rawHtml present:', 'rawHtml' in normalResult); // false
-  console.log('Extracted title:', normalResult.results[0]?.['title'] ?? '(none)');
+  console.log(
+    'Extracted title:',
+    normalResult.results[0]?.['title'] ?? '(none)',
+  );
 
   // ── Example 2: Raw mode ───────────────────────────────────────────────────
   console.log('\n(>_<) Example 2 — Raw mode (rawHtml is returned)\n');
@@ -127,11 +130,7 @@ async function demonstrateRawMode() {
   console.log('Archived url:', archived.url);
   console.log('Archived at:', archived.extractedAt);
   console.log('Snapshot size:', archived.htmlSnapshot?.length ?? 0, 'bytes');
-  console.log(
-    'Fields extracted:',
-    archived.fields.length,
-    'result(s)',
-  );
+  console.log('Fields extracted:', archived.fields.length, 'result(s)');
 }
 
 if (require.main === module) {

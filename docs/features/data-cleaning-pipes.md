@@ -489,6 +489,211 @@ Strip script/style tags and return visible text content, one line per text node.
 
 Useful when extracting `rawHTML` from a container and you want readable text without markup noise.
 
+#### RegexExtractionPipe
+
+Extract the first regex match from a string. Use `regex-extraction` for generic values, `regex-extraction--page` when the input is full page text, or `regex-extraction--url` when the input is a URL string. All three variants share the same fields and behaviour.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `regex` | `string` | — (required) | Regular expression pattern to match |
+| `flag` | `string` | `'g'` | Regex flags (e.g. `'gi'`, `'m'`) |
+
+```typescript
+{
+  key: 'version',
+  patterns: ['//meta[@name="generator"]/@content'],
+  pipes: {
+    custom: [{ type: 'regex-extraction', regex: '\\d+\\.\\d+\\.\\d+', flag: '' }],
+  },
+}
+// Input: "WordPress 6.4.2"
+// Output: "6.4.2"
+```
+
+```typescript
+// Page-scoped variant — semantically signals the value is full page HTML
+{ type: 'regex-extraction--page', regex: 'articleId=(\\d+)', flag: 'i' }
+
+// URL-scoped variant — semantically signals the value is a URL string
+{ type: 'regex-extraction--url', regex: 'https://[^"]+\\.jpg', flag: '' }
+```
+
+#### RegexReplacePipe
+
+Replace all occurrences of a regex pattern with a replacement string. Use `regex-replace` for generic values, `regex-replace--page` for page text, or `regex-replace--url` for URL strings. All three variants share the same fields and behaviour.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `regex` | `string` | — (required) | Regular expression pattern to match |
+| `flag` | `string` | `'g'` | Regex flags |
+| `textReplacement` | `string` | `''` | Replacement string (supports `$1`, `$2`, … capture groups) |
+
+```typescript
+{
+  key: 'price',
+  patterns: ['.//span[@class="price"]/text()'],
+  pipes: {
+    custom: [
+      { type: 'regex-replace', regex: '[^0-9.]', flag: 'g', textReplacement: '' },
+    ],
+  },
+}
+// Input: "$1,299.99"
+// Output: "1299.99"
+```
+
+```typescript
+// Page-scoped variant
+{ type: 'regex-replace--page', regex: '<[^>]+>', flag: 'g', textReplacement: '' }
+
+// URL-scoped variant — strip query string
+{ type: 'regex-replace--url', regex: '\\?.*$', flag: '', textReplacement: '' }
+```
+
+#### ExtractUrlParamsPipe
+
+Parse the input as a URL, check whether it matches a regex, and if so return the value of a named query-string parameter.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `regex` | `string` | — (required) | Regex that must match the URL for extraction to occur |
+| `flag` | `string` | `'g'` | Regex flags |
+| `paramKey` | `string` | — (required) | Query-string parameter name whose value to return |
+
+```typescript
+{
+  key: 'threadId',
+  patterns: ['.//a/@href'],
+  pipes: {
+    custom: [
+      { type: 'extract-url-params', regex: '/thread/', flag: 'i', paramKey: 'id' },
+    ],
+  },
+}
+// Input: "https://forum.example.com/thread/?id=42&page=1"
+// Output: "42"
+// If the URL does not match the regex, the original value is returned unchanged.
+```
+
+#### MediaFilterPipe
+
+Remove `data:image/gif` data-URI tokens from a space-separated `srcset`-style string. Useful for stripping tracking pixels and low-quality GIF placeholders from image source sets.
+
+No configuration fields — just use `{ type: 'media-filter' }`.
+
+```typescript
+{
+  key: 'image',
+  patterns: ['.//img/@srcset'],
+  pipes: {
+    custom: [{ type: 'media-filter' }],
+  },
+}
+// Input: "https://example.com/photo.jpg data:image/gif;base64,R0l..."
+// Output: "https://example.com/photo.jpg"
+```
+
+#### QueryAppendPipe
+
+Append a fixed query-string parameter to a URL. If the input is not a valid URL the original value is returned unchanged.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `paramKey` | `string` | — (required) | Parameter name to append |
+| `paramValue` | `string` | — (required) | Parameter value to append |
+
+```typescript
+{
+  key: 'link',
+  patterns: ['.//a/@href'],
+  pipes: {
+    custom: [
+      { type: 'parse-as-url' },
+      { type: 'query-append', paramKey: 'ref', paramValue: 'scraper' },
+    ],
+  },
+}
+// Input: "https://example.com/article"
+// Output: "https://example.com/article?ref=scraper"
+```
+
+#### JsonPathPipe
+
+Parse the input as JSON and extract a value using a [JSONPath](https://goessner.net/articles/JsonPath/) expression. Returns the extracted value as a string; if parsing fails the original value is returned.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `path` | `string` | — (required) | JSONPath expression (e.g. `$.store.book[0].title`) |
+
+```typescript
+{
+  key: 'author',
+  patterns: ['.//script[@type="application/ld+json"]/text()'],
+  pipes: {
+    custom: [{ type: 'json-path', path: '$.author.name' }],
+  },
+}
+// Input: '{"author":{"name":"Jane Doe"},"datePublished":"2024-01-01"}'
+// Output: "Jane Doe"
+```
+
+#### QueryRemoverPipe
+
+Remove specified query-string parameters from a URL. If the URL cannot be parsed the original value is returned unchanged. Use `query-remover` for generic values, `query-remover--page` for page-context inputs, or `query-remover--url` for URL strings. All three variants share the same fields and behaviour.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `removed` | `string \| string[]` | — (required) | Parameter key(s) to remove. Pass a string for one key or an array for multiple. |
+
+```typescript
+{
+  key: 'cleanUrl',
+  patterns: ['.//a/@href'],
+  pipes: {
+    custom: [
+      { type: 'query-remover', removed: ['utm_source', 'utm_medium'] },
+    ],
+  },
+}
+// Input: "https://example.com/article?id=42&utm_source=email&utm_medium=cpc"
+// Output: "https://example.com/article?id=42"
+```
+
+```typescript
+// Single key as string
+{ type: 'query-remover', removed: 'sid' }
+
+// Page-scoped variant
+{ type: 'query-remover--page', removed: ['sid', 'token'] }
+
+// URL-scoped variant
+{ type: 'query-remover--url', removed: 'sessionId' }
+```
+
+#### DateFormatSpecialPipe
+
+Return a relative date string based on a special keyword. Useful for injecting relative date boundaries into a scraping pipeline.
+
+No configuration fields — just use `{ type: 'date-format-special' }` with one of the two supported keyword values.
+
+| Input value | Output |
+|---|---|
+| `'month_in'` | Current date/time minus 1 month, as `YYYY-MM-DD HH:mm:ss` |
+| `'month_over'` | Current date/time minus 2 months, as `YYYY-MM-DD HH:mm:ss` |
+| anything else | Returned unchanged |
+
+```typescript
+{
+  key: 'since',
+  patterns: ['.//meta[@name="date-range"]/@content'],
+  pipes: {
+    custom: [{ type: 'date-format-special' }],
+  },
+}
+// Input: "month_in"
+// Output: "2024-05-15 10:30:00" (one month before the current date)
+```
+
 ### Creating Custom Pipes
 
 You can create your own pipes by extending `PipeTransform`:

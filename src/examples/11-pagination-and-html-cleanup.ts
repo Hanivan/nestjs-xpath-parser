@@ -250,7 +250,9 @@ async function main() {
     await paginationExample();
     await paginationCustomKeysExample();
 
-    console.log('\n\\(^o^)/ All pagination and HTML cleanup examples completed!');
+    console.log(
+      '\n\\(^o^)/ All pagination and HTML cleanup examples completed!',
+    );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('\n(x_x) Error during demo:', errorMessage);
