@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.6.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.5.0...v0.6.0) (2026-06-26)
+
+
+### Features
+
+* **pipes:** add v1-compatible pipe registry with 10 new pipe types ([3657307](https://github.com/Hanivan/nestjs-xpath-parser/commit/3657307527e9e1e8946148dcbd1476baa091c1f6))
+
 # [0.5.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.4.0...v0.5.0) (2026-06-26)
 
 
