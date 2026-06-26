@@ -102,7 +102,11 @@ export class HtmlParser {
 
     if (pagePattern) {
       results.push(
-        ...(this.extractPagePattern<T>(pagePattern, dom) as ExtractionResult[]),
+        ...(this.extractPagePattern<T>(
+          pagePattern,
+          dom,
+          url,
+        ) as ExtractionResult[]),
       );
     }
 
@@ -112,6 +116,7 @@ export class HtmlParser {
   private extractPagePattern<T = ExtractionResult>(
     pagePattern: PatternField,
     dom: HtmlBuilder,
+    url?: string,
   ): T[] {
     const urlKey = pagePattern.meta?.pageUrlKey ?? 'url';
     const textKey = pagePattern.meta?.pageTextKey ?? 'text';
@@ -123,8 +128,19 @@ export class HtmlParser {
         './text()[normalize-space()]',
         node,
       )[0];
+      const rawUrl = urlNode ? dom.value(urlNode) : dom.value(node);
+      const resolvedUrl =
+        url && rawUrl && !rawUrl.startsWith('http')
+          ? (() => {
+              try {
+                return new URL(rawUrl, url).toString();
+              } catch {
+                return rawUrl;
+              }
+            })()
+          : rawUrl;
       return {
-        [urlKey]: urlNode ? dom.value(urlNode) : dom.value(node),
+        [urlKey]: resolvedUrl,
         [textKey]: textNode ? dom.value(textNode) : dom.value(node),
       } as T;
     });
