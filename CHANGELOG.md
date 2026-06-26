@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.5.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.4.0...v0.5.0) (2026-06-26)
+
+
+### Features
+
+* add mode option to evaluateWebsite for raw HTML access ([ea8f303](https://github.com/Hanivan/nestjs-xpath-parser/commit/ea8f30376a0e6d93acc79ae22a2eed09d31fa34e))
+
 # [0.4.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.3.3...v0.4.0) (2026-06-23)
 
 
