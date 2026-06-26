@@ -872,6 +872,77 @@ describe('pageUrlKey / pageTextKey on PatternMeta', () => {
   });
 });
 
+describe('evaluateWebsite mode option', () => {
+  let service: ScraperHtmlService;
+
+  const mockHttpService = { get: jest.fn(), request: jest.fn() };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ScraperHtmlService,
+        { provide: HttpService, useValue: mockHttpService },
+      ],
+    }).compile();
+    service = module.get<ScraperHtmlService>(ScraperHtmlService);
+  });
+
+  afterEach(() => jest.clearAllMocks());
+
+  const html = `<html><head><title>Test</title></head><body><h1>Hello</h1></body></html>`;
+  const patterns: PatternField[] = [
+    {
+      key: 'title',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//h1/text()'],
+    },
+  ];
+
+  it('should NOT include rawHtml when mode is omitted', async () => {
+    const result = await service.evaluateWebsite({ html, patterns });
+    expect('rawHtml' in result).toBe(false);
+  });
+
+  it('should NOT include rawHtml when mode is "normal"', async () => {
+    const result = await service.evaluateWebsite({
+      html,
+      patterns,
+      mode: 'normal',
+    });
+    expect('rawHtml' in result).toBe(false);
+  });
+
+  it('should include rawHtml when mode is "raw"', async () => {
+    const result = await service.evaluateWebsite({
+      html,
+      patterns,
+      mode: 'raw',
+    });
+    expect('rawHtml' in result).toBe(true);
+    expect(typeof result.rawHtml).toBe('string');
+  });
+
+  it('rawHtml should equal the inline html string when mode is "raw"', async () => {
+    const result = await service.evaluateWebsite({
+      html,
+      patterns,
+      mode: 'raw',
+    });
+    expect(result.rawHtml).toBe(html);
+  });
+
+  it('should still extract results correctly when mode is "raw"', async () => {
+    const result = await service.evaluateWebsite({
+      html,
+      patterns,
+      mode: 'raw',
+    });
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0]).toMatchObject({ title: 'Hello' });
+  });
+});
+
 describe('normalizeHtml option', () => {
   it('collapses double tabs, tab-newlines, and double newlines before parsing', () => {
     const htmlParser = new HtmlParser(ParserEngine.LIBXMLJS, false);

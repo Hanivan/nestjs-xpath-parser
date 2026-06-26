@@ -33,18 +33,19 @@ Main method for scraping websites with pattern-based extraction.
 ```typescript
 evaluateWebsite<T = ExtractionResult>(
   options: EvaluateOptions
-): Promise<{ results: T[]; document: unknown }>
+): Promise<{ results: T[]; document: unknown; rawHtml?: string }>
 ```
 
 #### Parameters
 
 | Parameter             | Type                        | Required | Description                           |
 | --------------------- | --------------------------- | -------- | ------------------------------------- |
-| `options.url`         | `string`                    | No\*     | URL to fetch and parse                |
-| `options.html`        | `string`                    | No\*     | Pre-fetched HTML string               |
-| `options.patterns`    | `PatternField[]`            | Yes      | Extraction patterns                   |
-| `options.useProxy`    | `boolean \| string`         | No       | Enable proxy                          |
-| `options.contentType` | `'text/html' \| 'text/xml'` | No       | Content type (default: `'text/html'`) |
+| `options.url`         | `string`                    | No\*     | URL to fetch and parse                                                    |
+| `options.html`        | `string`                    | No\*     | Pre-fetched HTML string                                                   |
+| `options.patterns`    | `PatternField[]`            | Yes      | Extraction patterns                                                       |
+| `options.useProxy`    | `boolean \| string`         | No       | Enable proxy                                                              |
+| `options.contentType` | `'text/html' \| 'text/xml'` | No       | Content type (default: `'text/html'`)                                     |
+| `options.mode`        | `'raw' \| 'normal'`         | No       | `'raw'` — include fetched HTML as `rawHtml` in return value (default: `'normal'`) |
 
 \*Either `url` or `html` must be provided.
 
@@ -52,8 +53,9 @@ evaluateWebsite<T = ExtractionResult>(
 
 ```typescript
 {
-  results: T[];      // Array of extracted data objects
-  document: unknown; // Parsed DOM document
+  results: T[];       // Array of extracted data objects
+  document: unknown;  // Parsed DOM document
+  rawHtml?: string;   // Present only when mode: 'raw'
 }
 ```
 
@@ -130,6 +132,20 @@ const result = await scraperService.evaluateWebsite({
   useProxy: 'http://proxy.example.com:8080',
   patterns: [...],
 });
+```
+
+**Raw mode — access fetched HTML alongside results:**
+
+```typescript
+const result = await scraperService.evaluateWebsite({
+  url: 'https://example.com',
+  patterns,
+  mode: 'raw',
+});
+
+console.log('rawHtml present:', 'rawHtml' in result); // true
+console.log('rawHtml length:', result.rawHtml?.length);
+// Store rawHtml for archiving, diff detection, or re-parsing
 ```
 
 **XML parsing:**
@@ -323,9 +339,9 @@ const results = await scraperService.checkUrlAlive([
 
 results.forEach((r) => {
   if (r.alive) {
-    console.log(`✓ ${r.url} (${r.statusCode})`);
+    console.log(`[OK] ${r.url} (${r.statusCode})`);
   } else {
-    console.log(`✗ ${r.url} - ${r.error || r.statusCode}`);
+    console.log(`[DEAD] ${r.url} - ${r.error || r.statusCode}`);
   }
 });
 ```
@@ -466,6 +482,7 @@ interface EvaluateOptions {
   httpEngine?: HttpEngine; // per-call override: 'axios' | 'cycletls'
   fingerprint?: string | TlsFingerprint; // per-call fingerprint override
   timeout?: number; // per-call CycleTLS timeout (seconds)
+  mode?: 'raw' | 'normal'; // 'raw' = include rawHtml in return value
 }
 ```
 

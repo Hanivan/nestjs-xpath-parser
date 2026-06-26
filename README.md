@@ -10,7 +10,7 @@
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/v/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Version" /></a>
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/l/@hanivanrizky/nestjs-xpath-parser.svg" alt="Package License" /></a>
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/dm/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Downloads" /></a>
-  <img src="https://img.shields.io/badge/tests-44%20passed-brightgreen.svg" alt="Tests: 44 passed" />
+  <img src="https://img.shields.io/badge/tests-56%20passed-brightgreen.svg" alt="Tests: 56 passed" />
 </p>
 
 ## Table of Contents
@@ -43,6 +43,7 @@
 - **(☆^O^☆) Engine Selection**: Choose between libxmljs (default) or JSDOM for parsing
 - **(.\_.) Multi-Format Support**: Parse both HTML and XML content
 - **(.\_.) Return Types**: Extract text content or raw HTML
+- **(>\_<) Raw Mode**: Include the fetched HTML string in the return value alongside extracted fields (e.g. for archiving, diff detection, or re-parsing)
 - **(>\_<) Alternative Patterns**: Fallback patterns for robust extraction
 - **(☆^O^☆) TypeScript Generics**: Full generic type support for type-safe results
 - **(o_o) Fully Tested**: Comprehensive test suite with real-world examples
@@ -304,6 +305,33 @@ if (deadUrls.length > 0) {
   console.warn(`Found ${deadUrls.length} dead URLs:`, deadUrls);
 }
 ```
+
+### Raw Mode
+
+Receive the fetched HTML string alongside the extracted fields — useful for archiving, diff detection, or feeding a second parser.
+
+```typescript
+const result = await scraperService.evaluateWebsite({
+  url: 'https://example.com/article',
+  patterns: [
+    {
+      key: 'title',
+      patternType: 'xpath',
+      returnType: 'text',
+      patterns: ['//h1/text()'],
+    },
+  ],
+  mode: 'raw', // rawHtml is included in the return value
+});
+
+console.log(result.results[0].title); // extracted field
+console.log(result.rawHtml?.length);  // full HTML byte count
+
+// Store rawHtml in object storage for diff detection or re-parsing
+await storage.put(`snapshots/${url}`, result.rawHtml);
+```
+
+Omitting `mode` (or setting `mode: 'normal'`) omits `rawHtml` from the result.
 
 ### CycleTLS Fingerprint Fetching
 

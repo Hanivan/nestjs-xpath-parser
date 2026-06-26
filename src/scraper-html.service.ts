@@ -75,7 +75,7 @@ export class ScraperHtmlService implements OnModuleDestroy {
 
   async evaluateWebsite<T = ExtractionResult>(
     options: EvaluateOptions,
-  ): Promise<{ results: T[]; document: unknown }> {
+  ): Promise<{ results: T[]; document: unknown; rawHtml?: string }> {
     let html = options.html;
 
     if (!html && options.url) {
@@ -114,6 +114,7 @@ export class ScraperHtmlService implements OnModuleDestroy {
     return {
       results,
       document: dom.getDocument(),
+      ...(options.mode === 'raw' ? { rawHtml: html } : {}),
     };
   }
 

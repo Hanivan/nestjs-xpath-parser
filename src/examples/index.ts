@@ -45,3 +45,4 @@ export {
   customPipeWithBaseUrlExample,
 } from './09-custom-pipes';
 export { demonstrateCycleTLSFingerprint } from './10-cycletls-fingerprint';
+export { demonstrateRawMode } from './12-raw-mode';

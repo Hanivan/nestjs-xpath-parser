@@ -111,6 +111,21 @@ Demonstrates URL health checking:
 ts-node src/examples/07-url-health-check.ts
 ```
 
+### 12. Raw Mode (`12-raw-mode.ts`)
+
+Demonstrates the `mode: 'raw'` option on `evaluateWebsite`:
+
+- Receiving the fetched HTML string as `rawHtml` alongside extracted fields
+- Comparing normal mode (no `rawHtml`) vs raw mode
+- Using inline `html` option with raw mode
+- Archiving raw HTML snapshots for diff detection or re-parsing
+
+**Run:**
+
+```bash
+ts-node src/examples/12-raw-mode.ts
+```
+
 ### 8. Module Configuration Options (`08-configuration-options.ts`)
 
 Advanced module configuration features:
@@ -240,7 +255,8 @@ export { demonstrateFeature };
 4. **Study Example 6** for production-ready patterns
 5. **Use Example 7** to verify scraped URLs are valid before storing them
 6. **Check Example 8** for advanced module configuration (engine selection, error suppression)
-7. **Modify examples** to fit your specific scraping needs
+7. **See Example 12** for raw mode — accessing the fetched HTML alongside extracted fields
+8. **Modify examples** to fit your specific scraping needs
 
 ## Common Patterns
 

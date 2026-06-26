@@ -18,6 +18,7 @@ interface EvaluateOptions {
   httpEngine?: HttpEngine; // Override the module-level HTTP fetch engine for this call
   fingerprint?: string | TlsFingerprint; // Override the module-level TLS fingerprint for this call
   timeout?: number; // Per-call CycleTLS timeout in seconds (overrides module-level)
+  mode?: 'raw' | 'normal'; // 'raw' = include rawHtml in return value (default: 'normal')
 }
 ```
 
@@ -257,8 +258,9 @@ Return type for `evaluateWebsite()`.
 
 ```typescript
 interface EvaluateWebsiteResult<T = ExtractionResult> {
-  results: T[]; // Array of extracted data
+  results: T[];      // Array of extracted data
   document: unknown; // Parsed DOM document
+  rawHtml?: string;  // Present only when mode is 'raw' in EvaluateOptions
 }
 ```
 

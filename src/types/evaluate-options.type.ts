@@ -20,4 +20,9 @@ export interface EvaluateOptions {
    * module-level `timeout`. Ignored by the axios engine.
    */
   timeout?: number;
+  /**
+   * `'raw'` — include the fetched HTML string as `rawHtml` in the return value.
+   * `'normal'` (default) — omit `rawHtml` from the return value.
+   */
+  mode?: 'raw' | 'normal';
 }
