@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.6.0...v0.6.1) (2026-06-26)
+
+
+### Bug Fixes
+
+* **html-parser:** resolve relative pagination URLs against base URL ([3deef93](https://github.com/Hanivan/nestjs-xpath-parser/commit/3deef93f2fe36af6aedac94630a23db22cd98fa9))
+
 # [0.6.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.5.0...v0.6.0) (2026-06-26)
 
 
