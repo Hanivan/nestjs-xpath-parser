@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.6.1...v0.6.2) (2026-06-27)
+
+
+### Bug Fixes
+
+* **module:** include HttpModule in forRootAsync imports and fix LIBXMLJS typo in spec ([8189578](https://github.com/Hanivan/nestjs-xpath-parser/commit/8189578e5752fcee1e823291b0c471c34a68dc65))
+
 ## [0.6.1](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.6.0...v0.6.1) (2026-06-26)
 
 
