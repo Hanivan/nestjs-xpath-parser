@@ -43,7 +43,7 @@ export class ScraperHtmlModule {
 
     return {
       module: ScraperHtmlModule,
-      imports: options.imports ?? [],
+      imports: [HttpModule, ...(options.imports ?? [])],
       providers: asyncProviders,
       exports: [ScraperHtmlService],
     };

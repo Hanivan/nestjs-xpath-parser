@@ -5,7 +5,7 @@ import type { PatternField } from '../types/pattern-field.type';
 jest.mock('jsdom', () => ({ JSDOM: jest.fn() }));
 
 const makeParser = () =>
-  new HtmlParser(ParserEngine.LIBXML as ParserEngine, false);
+  new HtmlParser(ParserEngine.LIBXMLJS as ParserEngine, false);
 
 const PAGE_HTML = `
 <html><body>
