@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import decodeHtml from 'decode-html';
+import { decode } from 'html-entities';
 import { plainToClass } from 'class-transformer';
 import { PatternField, PipeTransform } from '../types';
 import { PIPE_REGISTRY } from '../types/pipe-registry';
@@ -15,7 +15,7 @@ export class PipeEngine {
     let result = value;
 
     if (pipes.decode) {
-      result = decodeHtml(result);
+      result = decode(result);
     }
 
     if (pipes.toLowerCase) {
