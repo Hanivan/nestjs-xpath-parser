@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.7.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.6.3...v0.7.0) (2026-06-29)
+
+
+### Features
+
+* **pipes:** add DateRelativePipe for relative/natural-language date parsing ([47df797](https://github.com/Hanivan/nestjs-xpath-parser/commit/47df797f5f26b5d33c3c375bafd368320f254138))
+
 ## [0.6.3](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.6.2...v0.6.3) (2026-06-28)
 
 ## [0.6.2](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.6.1...v0.6.2) (2026-06-27)
