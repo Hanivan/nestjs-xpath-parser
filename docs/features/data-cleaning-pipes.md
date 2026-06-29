@@ -670,6 +670,73 @@ Remove specified query-string parameters from a URL. If the URL cannot be parsed
 { type: 'query-remover--url', removed: 'sessionId' }
 ```
 
+#### DateRelativePipe
+
+Convert relative or natural-language date strings to Unix timestamps (seconds). Falls back to `now` when nothing matches.
+
+**Pipeline (applied in order):**
+1. `format` (if supplied) — try `moment(v, format)` for absolute date strings
+2. `ms` — short/medium English codes: `"27m"`, `"2h"`, `"3d"`, `"2 hours"`, `"3 days"`
+3. `localeMap` — consumer-supplied translation map, then retried through ms
+4. `chrono-node` — natural language + absolute dates: `"yesterday"`, `"Jun 29 2026"`, `"2024-01-15"`
+5. fallback — returns `now` (not `0`) when nothing matches
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `localeMap` | `Record<string, string>` | — | Consumer-supplied map of locale words → English equivalents |
+| `daysPerMonth` | `number` | `30` | Days used when approximating `"N months"` |
+| `timezone` | `string` | — | IANA timezone name (e.g. `Asia/Jakarta`). Shifts `now` reference and affects `reverse()` |
+| `format` | `string` | — | Moment.js format string for absolute date parsing (e.g. `DD MMM YYYY`). Also used by `reverse()` |
+
+```typescript
+// English only (no params needed):
+{ type: 'date-relative' }
+
+// With explicit format + timezone:
+{ type: 'date-relative', format: 'DD MMM YYYY', timezone: 'Asia/Jakarta' }
+```
+
+```typescript
+// Indonesian forum:
+{
+  type: 'date-relative',
+  timezone: 'Asia/Jakarta',
+  localeMap: {
+    'yang lalu': 'ago',
+    lalu: 'ago',
+    jam: 'hours',
+    menit: 'minutes',
+    hari: 'days',
+    minggu: 'weeks',
+    bulan: 'months',
+    tahun: 'years',
+    'baru saja': 'just now',
+  },
+}
+// "27 menit lalu" → <unix timestamp ~27 minutes ago>
+// "2 jam lalu"    → <unix timestamp ~2 hours ago>
+// "baru saja"     → <current unix timestamp>
+```
+
+```typescript
+// Japanese forum:
+{
+  type: 'date-relative',
+  timezone: 'Asia/Tokyo',
+  localeMap: {
+    '分前': 'minutes ago',
+    '時間前': 'hours ago',
+    '日前': 'days ago',
+    'ヶ月前': 'months ago',
+    '年前': 'years ago',
+    'たった今': 'just now',
+  },
+}
+// "27分前" → <unix timestamp ~27 minutes ago>
+```
+
+The `reverse()` method converts a Unix timestamp back to a formatted string (using `format` if supplied, otherwise ISO 8601). The lib has **no built-in locale maps** — the consuming service must supply its own `localeMap` for non-English forums.
+
 #### DateFormatSpecialPipe
 
 Return a relative date string based on a special keyword. Useful for injecting relative date boundaries into a scraping pipeline.

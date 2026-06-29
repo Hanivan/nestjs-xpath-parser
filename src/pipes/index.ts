@@ -14,3 +14,4 @@ export * from './QueryAppendPipe';
 export * from './JsonPathPipe';
 export * from './QueryRemoverPipe';
 export * from './DateFormatSpecialPipe';
+export * from './DateRelativePipe';

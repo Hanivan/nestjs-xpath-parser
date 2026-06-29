@@ -26,6 +26,7 @@ import {
   URLQueryRemoverPipe,
 } from '../pipes/QueryRemoverPipe';
 import { DateFormatSpecialPipe } from '../pipes/DateFormatSpecialPipe';
+import { DateRelativePipe } from '../pipes/DateRelativePipe';
 import { PipeTransform } from './pipe-transform.type';
 
 /**
@@ -68,6 +69,7 @@ export const PIPE_REGISTRY: Record<
   'query-remover--page': PageQueryRemoverPipe,
   'query-remover--url': URLQueryRemoverPipe,
   'date-format-special': DateFormatSpecialPipe,
+  'date-relative': DateRelativePipe,
 };
 
 /**

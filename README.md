@@ -10,7 +10,7 @@
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/v/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Version" /></a>
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/l/@hanivanrizky/nestjs-xpath-parser.svg" alt="Package License" /></a>
   <a href="https://www.npmjs.com/package/@hanivanrizky/nestjs-xpath-parser" target="_blank"><img src="https://img.shields.io/npm/dm/@hanivanrizky/nestjs-xpath-parser.svg" alt="NPM Downloads" /></a>
-  <img src="https://img.shields.io/badge/tests-56%20passed-brightgreen.svg" alt="Tests: 56 passed" />
+  <img src="https://img.shields.io/badge/tests-115%20passed-brightgreen.svg" alt="Tests: 115 passed" />
 </p>
 
 ## Table of Contents
