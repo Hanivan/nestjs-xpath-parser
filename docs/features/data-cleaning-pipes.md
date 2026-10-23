@@ -617,6 +617,23 @@ Append a fixed query-string parameter to a URL. If the input is not a valid URL 
 // Output: "https://example.com/article?ref=scraper"
 ```
 
+#### PathAppendPipe
+
+Insert a path segment into a URL. Query string and hash are kept. Input that is not an absolute URL (including relative paths) is returned unchanged, as is any input when `pathSegment` contains `.`/`..` segments.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `pathSegment` | `string` | — (required) | Segment(s) to insert; leading/trailing `/` optional, special characters are percent-encoded |
+| `appendMode` | `'after-base' \| 'after-path'` | `'after-path'` | `after-base`: right after the origin. `after-path`: end of the path, or after `afterPath` |
+| `afterPath` | `string` | — | With `after-path`: insert right after these whole segments (`/api` does not match `/apiv2`); falls back to the end when not found |
+
+```typescript
+{ type: 'path-append', pathSegment: 'amp' }
+// "https://example.com/t/1/?a=1" -> "https://example.com/t/1/amp?a=1"
+{ type: 'path-append', pathSegment: 'en', appendMode: 'after-base' }
+// "https://example.com/t/1" -> "https://example.com/en/t/1"
+```
+
 #### JsonPathPipe
 
 Parse the input as JSON and extract a value using a [JSONPath](https://goessner.net/articles/JsonPath/) expression. Returns the extracted value as a string; if parsing fails the original value is returned.

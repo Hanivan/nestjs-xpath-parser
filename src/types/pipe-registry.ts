@@ -7,6 +7,7 @@ import { MediaFilterPipe } from '../pipes/MediaFilterPipe';
 import { NumberNormalizePipe } from '../pipes/NumberNormalizePipe';
 import { ParseAsURLPipe } from '../pipes/ParseAsURLPipe';
 import { QueryAppendPipe } from '../pipes/QueryAppendPipe';
+import { PathAppendPipe } from '../pipes/PathAppendPipe';
 import {
   RegexExtractionPipe,
   PageRegexExtractionPipe,
@@ -64,6 +65,7 @@ export const PIPE_REGISTRY: Record<
   'extract-url-params': ExtractUrlParamsPipe,
   'media-filter': MediaFilterPipe,
   'query-append': QueryAppendPipe,
+  'path-append': PathAppendPipe,
   'json-path': JsonPathPipe,
   'query-remover': QueryRemoverPipe,
   'query-remover--page': PageQueryRemoverPipe,

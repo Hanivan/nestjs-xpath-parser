@@ -11,6 +11,7 @@ export * from './RegexReplacePipe';
 export * from './ExtractUrlParamsPipe';
 export * from './MediaFilterPipe';
 export * from './QueryAppendPipe';
+export * from './PathAppendPipe';
 export * from './JsonPathPipe';
 export * from './QueryRemoverPipe';
 export * from './DateFormatSpecialPipe';
