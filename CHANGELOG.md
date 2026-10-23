@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.8.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.7.0...v0.8.0) (2026-10-23)
+
+
+### Features
+
+* **pipes:** add PathAppendPipe for inserting URL path segments ([290d4ed](https://github.com/Hanivan/nestjs-xpath-parser/commit/290d4eda7ee7a5b8b86a1c455ca59fb8fff350e3))
+
 # [0.7.0](https://github.com/Hanivan/nestjs-xpath-parser/compare/v0.6.3...v0.7.0) (2026-06-29)
 
 
